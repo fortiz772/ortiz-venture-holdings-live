@@ -26,6 +26,29 @@
     <script src="https://unpkg.com/framer-motion@11.11.17/dist/framer-motion.js"></script>
     <script>window.Motion = window.FramerMotion || window.Motion;</script>
     <script>
+      window.OVH_ANALYTICS_ID = "";
+      window.OVH_ANALYTICS_ENABLED = /^G-[A-Z0-9]+$/i.test(window.OVH_ANALYTICS_ID);
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = window.gtag || function(){ window.dataLayer.push(arguments); };
+      window.trackSiteEvent = function(eventName, params) {
+        if (!window.OVH_ANALYTICS_ENABLED) return;
+        window.gtag("event", eventName, Object.assign({
+          site_name: "Ortiz Venture Holdings LLC"
+        }, params || {}));
+      };
+      if (window.OVH_ANALYTICS_ENABLED) {
+        var analyticsScript = document.createElement("script");
+        analyticsScript.async = true;
+        analyticsScript.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(window.OVH_ANALYTICS_ID);
+        document.head.appendChild(analyticsScript);
+        window.gtag("js", new Date());
+        window.gtag("config", window.OVH_ANALYTICS_ID, {
+          anonymize_ip: true,
+          send_page_view: true
+        });
+      }
+    </script>
+    <script>
       tailwind.config = {
         theme: {
           extend: {
@@ -294,9 +317,15 @@
         }
       ];
 
-      function smoothScroll(id) {
+      function smoothScroll(id, eventSource = "navigation") {
         const section = document.getElementById(id);
-        if (section) section.scrollIntoView({ behavior: "smooth", block: "start" });
+        if (section) {
+          window.trackSiteEvent("navigation_click", {
+            target_section: id,
+            event_source: eventSource
+          });
+          section.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
       }
 
       function Icon({ type }) {
@@ -396,7 +425,7 @@
 
         const go = (id) => {
           setOpen(false);
-          smoothScroll(id);
+          smoothScroll(id, "nav_menu");
         };
 
         return (
@@ -417,7 +446,10 @@
                 </nav>
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => go("contact")}
+                    onClick={() => {
+                      window.trackSiteEvent("consultation_cta_click", { location: "desktop_nav" });
+                      go("contact");
+                    }}
                     className="hidden rounded-full bg-slate-950 px-5 py-3 text-sm font-black text-white shadow-xl shadow-sky-900/20 transition hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-sky-700 sm:inline-flex sm:items-center sm:gap-2"
                   >
                     Request a Consultation <ArrowIcon />
@@ -433,7 +465,10 @@
                 {navItems.map(([label, id]) => (
                   <button key={id} onClick={() => go(id)} className="block w-full rounded-2xl px-4 py-3 text-left font-black text-slate-800 hover:bg-white/80">{label}</button>
                 ))}
-                <button onClick={() => go("contact")} className="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 py-3 font-black text-white">Request a Consultation <ArrowIcon /></button>
+                <button onClick={() => {
+                  window.trackSiteEvent("consultation_cta_click", { location: "mobile_menu" });
+                  go("contact");
+                }} className="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 py-3 font-black text-white">Request a Consultation <ArrowIcon /></button>
               </div>
             </div>
           </div>
@@ -570,7 +605,10 @@
               {card.tags.map(tag => <span key={tag} className="rounded-full border border-sky-100 bg-white/65 px-3 py-1 text-xs font-black text-sky-700">{tag}</span>)}
             </div>
             <p className="mt-5 flex-1 text-base leading-7 text-slate-600">{card.description}</p>
-            <button onClick={() => smoothScroll("contact")} className="mt-7 inline-flex w-fit items-center gap-2 rounded-full bg-slate-950 px-5 py-3 text-sm font-black text-white shadow-lg shadow-slate-900/15 transition group-hover:bg-sky-600">
+            <button onClick={() => {
+              window.trackSiteEvent("platform_access_click", { platform_name: card.title });
+              smoothScroll("contact", "platform_card");
+            }} className="mt-7 inline-flex w-fit items-center gap-2 rounded-full bg-slate-950 px-5 py-3 text-sm font-black text-white shadow-lg shadow-slate-900/15 transition group-hover:bg-sky-600">
               Request Access <ArrowIcon />
             </button>
           </motion.article>
@@ -650,7 +688,10 @@
                         <h3 className="text-2xl font-black text-slate-950">{card.title}</h3>
                       </div>
                       <p className="mt-4 min-h-[96px] text-sm leading-6 text-slate-600">{card.description}</p>
-                      <button onClick={() => smoothScroll("contact")} className="mt-5 inline-flex items-center gap-2 rounded-full border border-sky-100 bg-white px-4 py-2 text-sm font-black text-sky-700 shadow-lg shadow-sky-100 transition group-hover:bg-sky-600 group-hover:text-white">
+                      <button onClick={() => {
+                        window.trackSiteEvent("platform_showcase_click", { platform_name: card.title });
+                        smoothScroll("contact", "platform_showcase");
+                      }} className="mt-5 inline-flex items-center gap-2 rounded-full border border-sky-100 bg-white px-4 py-2 text-sm font-black text-sky-700 shadow-lg shadow-sky-100 transition group-hover:bg-sky-600 group-hover:text-white">
                         Explore Platform <ArrowIcon />
                       </button>
                     </div>
@@ -817,7 +858,7 @@
                 <h2 className="font-luxury mx-auto mt-4 max-w-3xl text-5xl leading-[.95] md:text-7xl">Build the next intelligent platform.</h2>
                 <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-200">Talk with Ortiz Venture Holdings LLC about AI-powered platforms, analytics dashboards, software systems, and future digital ventures.</p>
                 <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                  <motion.a whileHover={{ scale: 1.04 }} whileTap={{ scale: .98 }} href="mailto:cisco@ortizventureholdings.com?subject=Consultation%20request%20for%20Ortiz%20Venture%20Holdings" className="inline-flex h-14 w-full items-center justify-center gap-2 rounded-full bg-white px-7 font-black text-slate-950 shadow-2xl shadow-cyan-950/30 sm:w-auto">
+                  <motion.a whileHover={{ scale: 1.04 }} whileTap={{ scale: .98 }} onClick={() => window.trackSiteEvent("consultation_email_click", { location: "contact_footer" })} href="mailto:cisco@ortizventureholdings.com?subject=Consultation%20request%20for%20Ortiz%20Venture%20Holdings" className="inline-flex h-14 w-full items-center justify-center gap-2 rounded-full bg-white px-7 font-black text-slate-950 shadow-2xl shadow-cyan-950/30 sm:w-auto">
                     Request a Consultation <ArrowIcon />
                   </motion.a>
                   <span className="text-sm font-bold text-slate-300">cisco@ortizventureholdings.com</span>
