@@ -11,6 +11,10 @@
     h1{font-size:clamp(38px,7vw,72px);line-height:1;margin:0 0 10px}.brand{color:#0a84ff}.pill{display:inline-block;margin:8px 8px 8px 0;padding:8px 13px;border-radius:999px;background:#e8f5ff;color:#0758b8;font-weight:700}
     a{color:#006adc;font-weight:700}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:22px}.tile{padding:18px;border-radius:20px;background:rgba(255,255,255,.66);border:1px solid rgba(255,255,255,.9)}
     footer{margin-top:28px;color:#526175;font-size:14px}
+    .cta-row{margin:26px 0 6px;display:flex;flex-wrap:wrap;align-items:center;gap:14px}
+    .cta-btn{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font-weight:800;font-size:16px;color:#fff;padding:15px 26px;border-radius:999px;background:linear-gradient(135deg,#0a84ff,#8f52ff 55%,#ef3ec2);box-shadow:0 14px 34px -10px rgba(143,82,255,.55),0 0 0 1px rgba(255,255,255,.4) inset;transition:transform .15s ease,box-shadow .15s ease}
+    .cta-btn:hover{transform:translateY(-2px);box-shadow:0 20px 40px -10px rgba(143,82,255,.6),0 0 0 1px rgba(255,255,255,.5) inset}
+    .cta-note{color:#526175;font-size:13px;font-weight:600}
   </style>
 </head>
 <body>
@@ -20,6 +24,10 @@
       <h1>StockPilot <span class="brand">AI</span></h1>
       <p>StockPilot AI is a premium educational stock intelligence application from Ortiz Venture Holdings LLC. It helps users organize market research, watchlists, alerts, portfolio context, market news, and AI-assisted stock analysis.</p>
       <p><strong>Important:</strong> StockPilot AI is not a broker, investment advisor, or financial planner. Nothing in the app constitutes financial advice or guarantees investment performance.</p>
+      <div class="cta-row">
+        <a class="cta-btn" href="/stockpilot-ai/app/">✦ Launch the Live Dashboard Preview</a>
+        <span class="cta-note">An interactive Liquid Glass preview in your browser — simulated data, real technical-analysis math.</span>
+      </div>
       <div class="grid">
         <a class="tile" href="/stockpilot-ai/privacy/">Privacy Policy</a>
         <a class="tile" href="/stockpilot-ai/subscription-terms/">Subscription Terms</a>
