@@ -133,8 +133,8 @@
   const TICK_MS = 2200;
   const SPOTLIGHT_MS = 6500;
   const NEWS_MS = 16000;
-  const WATCHLIST_KEY = "stockpilot.watchlist.v1";
-  const ALERTS_KEY = "stockpilot.alerts.v1";
+  const WATCHLIST_KEY = "pulsewise.watchlist.v1";
+  const ALERTS_KEY = "pulsewise.alerts.v1";
   const DEFAULT_WATCHLIST = ["AAPL", "NVDA", "TSLA", "MSFT", "AMZN", "META"];
 
   /* ================= State ================= */
