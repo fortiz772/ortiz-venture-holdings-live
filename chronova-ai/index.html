@@ -1,0 +1,1222 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Chronova AI — Calendar | Ortiz Venture Holdings LLC</title>
+    <meta name="description" content="Chronova AI is a beautifully designed calendar app for scheduling, time-blocking, and reminders — month, week, day, and agenda views, smart categories, and one-click .ics export.">
+    <meta name="theme-color" content="#f7fbff">
+    <meta property="og:title" content="Chronova AI | Ortiz Venture Holdings LLC">
+    <meta property="og:description" content="A beautifully designed calendar app for scheduling, time-blocking, and reminders.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.ortizventureholdings.com/chronova-ai/">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Chronova AI">
+    <meta name="twitter:description" content="A beautifully designed calendar app for scheduling, time-blocking, and reminders.">
+    <link rel="canonical" href="https://www.ortizventureholdings.com/chronova-ai/">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%230EA5E9'/%3E%3Cstop offset='.55' stop-color='%2322D3EE'/%3E%3Cstop offset='1' stop-color='%2310B981'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Crect x='14' y='18' width='36' height='32' rx='7' fill='white' fill-opacity='.96'/%3E%3Crect x='14' y='18' width='36' height='10' rx='7' fill='white'/%3E%3Crect x='21' y='12' width='4' height='10' rx='2' fill='%230c4a6e'/%3E%3Crect x='39' y='12' width='4' height='10' rx='2' fill='%230c4a6e'/%3E%3Ccircle cx='23' cy='36' r='2.8' fill='%230EA5E9'/%3E%3Ccircle cx='32' cy='36' r='2.8' fill='%2322D3EE'/%3E%3Ccircle cx='41' cy='36' r='2.8' fill='%2310B981'/%3E%3Ccircle cx='23' cy='44' r='2.8' fill='%2322D3EE'/%3E%3Ccircle cx='32' cy='44' r='2.8' fill='%230EA5E9'/%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/framer-motion@11.11.17/dist/framer-motion.js"></script>
+    <script>window.Motion = window.FramerMotion || window.Motion;</script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              barlow: ["Barlow", "ui-sans-serif", "system-ui"],
+              seriflux: ["Instrument Serif", "serif"]
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        min-width: 320px;
+        overflow-x: hidden;
+        background: #f7fbff;
+        color: #0f172a;
+        font-family: "Barlow", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      button, input, textarea, select { font: inherit; }
+      a { color: inherit; text-decoration: none; }
+      .font-luxury { font-family: "Instrument Serif", serif; font-style: italic; letter-spacing: 0; }
+
+      .liquid-glass {
+        background: rgba(255,255,255,.62);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        border: 1px solid rgba(255,255,255,.85);
+        box-shadow: 0 20px 60px rgba(14,116,144,.12), inset 0 1px 1px rgba(255,255,255,.9);
+      }
+      .liquid-glass-strong {
+        background: rgba(255,255,255,.87);
+        backdrop-filter: blur(30px);
+        -webkit-backdrop-filter: blur(30px);
+        border: 1px solid rgba(255,255,255,.92);
+        box-shadow: 0 24px 80px rgba(14,116,144,.18), inset 0 1px 1px rgba(255,255,255,.95);
+      }
+      .app-shell {
+        position: relative;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at 10% 0%, rgba(34,211,238,.14), transparent 32%),
+          radial-gradient(circle at 92% 10%, rgba(16,185,129,.10), transparent 30%),
+          linear-gradient(180deg, #f7fbff 0%, #ffffff 46%, #f7fbff 100%);
+      }
+      .orb { position: absolute; border-radius: 999px; filter: blur(34px); opacity: .55; pointer-events: none; }
+
+      .cal-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+      .cal-scroll::-webkit-scrollbar-track { background: transparent; }
+      .cal-scroll::-webkit-scrollbar-thumb { background: rgba(14,116,144,.22); border-radius: 999px; }
+      .cal-scroll::-webkit-scrollbar-thumb:hover { background: rgba(14,116,144,.4); }
+
+      .now-line { position: absolute; left: 0; right: 0; height: 2px; background: #f43f5e; z-index: 5; }
+      .now-line::before { content: ""; position: absolute; left: -4px; top: -4px; width: 10px; height: 10px; border-radius: 999px; background: #f43f5e; }
+
+      input[type="date"]::-webkit-calendar-picker-indicator,
+      input[type="time"]::-webkit-calendar-picker-indicator {
+        cursor: pointer;
+        opacity: .55;
+      }
+
+      @keyframes pop-in {
+        0% { opacity: 0; transform: scale(.94) translateY(6px); }
+        100% { opacity: 1; transform: scale(1) translateY(0); }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: .01ms !important;
+          animation-iteration-count: 1 !important;
+          scroll-behavior: auto !important;
+          transition-duration: .01ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="text/babel">
+      const { useState, useEffect, useMemo, useRef, useCallback } = React;
+      const MotionLib = window.Motion || window.FramerMotion || {};
+      const { motion, AnimatePresence } = MotionLib;
+
+      const STORAGE_KEYS = {
+        events: "chronova.events.v1",
+        reminded: "chronova.reminded.v1"
+      };
+
+      const CATEGORIES = [
+        { id: "work", label: "Work", swatch: "#0EA5E9", strong: "#0369A1", soft: "#E0F2FE", text: "#0369A1" },
+        { id: "personal", label: "Personal", swatch: "#10B981", strong: "#047857", soft: "#D1FAE5", text: "#047857" },
+        { id: "health", label: "Health", swatch: "#F43F5E", strong: "#BE123C", soft: "#FFE4E6", text: "#BE123C" },
+        { id: "travel", label: "Travel", swatch: "#F59E0B", strong: "#B45309", soft: "#FEF3C7", text: "#B45309" },
+        { id: "other", label: "Other", swatch: "#8B5CF6", strong: "#6D28D9", soft: "#EDE9FE", text: "#6D28D9" }
+      ];
+      const CATEGORY_MAP = CATEGORIES.reduce((acc, c) => { acc[c.id] = c; return acc; }, {});
+
+      const REMINDER_OPTIONS = [
+        { value: "", label: "No reminder" },
+        { value: "0", label: "At start time" },
+        { value: "5", label: "5 minutes before" },
+        { value: "15", label: "15 minutes before" },
+        { value: "30", label: "30 minutes before" },
+        { value: "60", label: "1 hour before" },
+        { value: "1440", label: "1 day before" }
+      ];
+
+      const WEEKDAY_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+      const WEEKDAY_LONG = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+      const MONTH_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      const HOURS = Array.from({ length: 24 }, (_, i) => i);
+
+      function pad2(n) { return n < 10 ? "0" + n : "" + n; }
+      function toKey(d) { return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()); }
+      function fromKey(k) { const p = k.split("-"); return new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2])); }
+      function isSameDay(a, b) { return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate(); }
+      function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
+      function addMonths(d, n) { const r = new Date(d); r.setMonth(r.getMonth() + n); return r; }
+      function startOfWeek(d) { const r = new Date(d); r.setHours(0, 0, 0, 0); r.setDate(r.getDate() - r.getDay()); return r; }
+      function startOfDay(d) { const r = new Date(d); r.setHours(0, 0, 0, 0); return r; }
+
+      function getMonthMatrix(anchor) {
+        const first = new Date(anchor.getFullYear(), anchor.getMonth(), 1);
+        const last = new Date(anchor.getFullYear(), anchor.getMonth() + 1, 0);
+        const gridStart = startOfWeek(first);
+        const gridEnd = startOfWeek(last);
+        const weeks = [];
+        let cursor = new Date(gridStart);
+        while (cursor <= gridEnd) {
+          const week = [];
+          for (let i = 0; i < 7; i++) { week.push(new Date(cursor)); cursor = addDays(cursor, 1); }
+          weeks.push(week);
+        }
+        return weeks;
+      }
+      function getWeekDays(anchor) {
+        const start = startOfWeek(anchor);
+        const days = [];
+        for (let i = 0; i < 7; i++) days.push(addDays(start, i));
+        return days;
+      }
+      function timeToMinutes(t) { if (!t) return 0; const p = t.split(":"); return Number(p[0]) * 60 + Number(p[1]); }
+      function minutesToTimeLabel(mins) {
+        let h = Math.floor(mins / 60);
+        const m = mins % 60;
+        const ampm = h >= 12 ? "PM" : "AM";
+        h = h % 12; if (h === 0) h = 12;
+        return h + (m ? ":" + pad2(m) : "") + " " + ampm;
+      }
+      function minutesToTimeStr(mins) {
+        const clamped = ((mins % 1440) + 1440) % 1440;
+        return pad2(Math.floor(clamped / 60)) + ":" + pad2(clamped % 60);
+      }
+      function formatTimeLabel(t) { if (!t) return ""; return minutesToTimeLabel(timeToMinutes(t)); }
+      function formatMonthYear(d) { return MONTH_LONG[d.getMonth()] + " " + d.getFullYear(); }
+      function formatDayHeader(d) { return WEEKDAY_LONG[d.getDay()] + ", " + MONTH_LONG[d.getMonth()] + " " + d.getDate(); }
+      function formatShortDate(d) { return MONTH_LONG[d.getMonth()].slice(0, 3) + " " + d.getDate(); }
+      function relativeDateLabel(d) {
+        const diffDays = Math.round((startOfDay(d) - startOfDay(new Date())) / 86400000);
+        if (diffDays === 0) return "Today";
+        if (diffDays === 1) return "Tomorrow";
+        if (diffDays === -1) return "Yesterday";
+        return formatShortDate(d);
+      }
+      function agendaHeaderLabel(d) {
+        const rel = relativeDateLabel(d);
+        const full = formatDayHeader(d);
+        return (rel === "Today" || rel === "Tomorrow" || rel === "Yesterday") ? rel + " · " + full : full;
+      }
+      function greeting() {
+        const h = new Date().getHours();
+        if (h < 12) return "Good morning";
+        if (h < 18) return "Good afternoon";
+        return "Good evening";
+      }
+      function uid() { return "e" + Date.now().toString(36) + Math.random().toString(36).slice(2, 9); }
+      function eventEndKey(ev) { return ev.endDate || ev.date; }
+
+      function buildSeedEvents() {
+        const today = startOfDay(new Date());
+        const k = (offset) => toKey(addDays(today, offset));
+        return [
+          { id: uid(), title: "Welcome to Chronova AI", date: k(0), endDate: k(0), allDay: false, startTime: "09:00", endTime: "09:30", category: "work", location: "", notes: "Tap any day or time slot to add your own event, or click an event to edit it.", reminder: "" },
+          { id: uid(), title: "Product strategy sync", date: k(0), endDate: k(0), allDay: false, startTime: "13:00", endTime: "14:00", category: "work", location: "Conference Room A", notes: "Review the Q3 roadmap.", reminder: "15" },
+          { id: uid(), title: "Design review", date: k(0), endDate: k(0), allDay: false, startTime: "13:30", endTime: "14:15", category: "other", location: "", notes: "", reminder: "" },
+          { id: uid(), title: "Morning run", date: k(1), endDate: k(1), allDay: false, startTime: "07:00", endTime: "07:45", category: "health", location: "Riverside Park", notes: "", reminder: "" },
+          { id: uid(), title: "Dentist appointment", date: k(2), endDate: k(2), allDay: false, startTime: "11:00", endTime: "12:00", category: "health", location: "Bright Smile Dental", notes: "", reminder: "60" },
+          { id: uid(), title: "1:1 with manager", date: k(3), endDate: k(3), allDay: false, startTime: "13:30", endTime: "14:00", category: "work", location: "", notes: "", reminder: "5" },
+          { id: uid(), title: "Yoga class", date: k(3), endDate: k(3), allDay: false, startTime: "18:30", endTime: "19:30", category: "health", location: "Studio Flow", notes: "", reminder: "30" },
+          { id: uid(), title: "Flight to Austin", date: k(4), endDate: k(4), allDay: false, startTime: "08:30", endTime: "11:00", category: "travel", location: "JFK Airport", notes: "Gate opens 45 minutes before departure.", reminder: "60" },
+          { id: uid(), title: "Team offsite", date: k(5), endDate: k(6), allDay: true, startTime: null, endTime: null, category: "work", location: "Lake House Retreat", notes: "Bring a laptop and comfortable shoes.", reminder: "" },
+          { id: uid(), title: "Mom's birthday", date: k(9), endDate: k(9), allDay: true, startTime: null, endTime: null, category: "personal", location: "", notes: "Order flowers.", reminder: "1440" },
+          { id: uid(), title: "Grocery run", date: k(-1), endDate: k(-1), allDay: false, startTime: "18:00", endTime: "18:30", category: "personal", location: "Whole Foods", notes: "", reminder: "" }
+        ];
+      }
+
+      function useLocalStorage(key, initial) {
+        const [value, setValue] = useState(() => {
+          try {
+            const raw = window.localStorage.getItem(key);
+            if (raw) return JSON.parse(raw);
+          } catch (err) {}
+          return typeof initial === "function" ? initial() : initial;
+        });
+        useEffect(() => {
+          try { window.localStorage.setItem(key, JSON.stringify(value)); } catch (err) {}
+        }, [key, value]);
+        return [value, setValue];
+      }
+
+      function escapeICS(str) {
+        return String(str || "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+      }
+      function icsDate(dateKey, timeStr) {
+        const d = fromKey(dateKey);
+        if (!timeStr) return d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate());
+        const parts = timeStr.split(":").map(Number);
+        d.setHours(parts[0], parts[1], 0, 0);
+        return d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate()) + "T" + pad2(d.getHours()) + pad2(d.getMinutes()) + "00";
+      }
+      function eventToVEVENT(ev) {
+        const stamp = icsDate(toKey(new Date()), "00:00");
+        let dtLines;
+        if (ev.allDay) {
+          const endExclusive = addDays(fromKey(ev.endDate || ev.date), 1);
+          dtLines = "DTSTART;VALUE=DATE:" + icsDate(ev.date, null) + "\nDTEND;VALUE=DATE:" + icsDate(toKey(endExclusive), null);
+        } else {
+          dtLines = "DTSTART:" + icsDate(ev.date, ev.startTime || "00:00") + "\nDTEND:" + icsDate(ev.date, ev.endTime || ev.startTime || "00:00");
+        }
+        return [
+          "BEGIN:VEVENT",
+          "UID:" + ev.id + "@chronova.ortizventureholdings.com",
+          "DTSTAMP:" + stamp,
+          dtLines,
+          "SUMMARY:" + escapeICS(ev.title),
+          ev.location ? "LOCATION:" + escapeICS(ev.location) : null,
+          ev.notes ? "DESCRIPTION:" + escapeICS(ev.notes) : null,
+          "CATEGORIES:" + escapeICS(CATEGORY_MAP[ev.category] ? CATEGORY_MAP[ev.category].label : ev.category),
+          "END:VEVENT"
+        ].filter(Boolean).join("\n");
+      }
+      function buildICS(events) {
+        return [
+          "BEGIN:VCALENDAR",
+          "VERSION:2.0",
+          "PRODID:-//Chronova AI//Ortiz Venture Holdings LLC//EN",
+          "CALSCALE:GREGORIAN",
+          events.map(eventToVEVENT).join("\n"),
+          "END:VCALENDAR"
+        ].join("\n");
+      }
+      function downloadText(filename, text, mime) {
+        const blob = new Blob([text], { type: mime || "text/plain" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = filename;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+
+      function layoutTimedEvents(events) {
+        const sorted = [...events].sort((a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime));
+        const clusters = [];
+        let current = [];
+        let currentEnd = -1;
+        sorted.forEach(ev => {
+          const start = timeToMinutes(ev.startTime);
+          const end = Math.max(timeToMinutes(ev.endTime || ev.startTime), start + 15);
+          if (current.length && start >= currentEnd) {
+            clusters.push(current);
+            current = [];
+            currentEnd = -1;
+          }
+          current.push({ ev, start, end });
+          currentEnd = Math.max(currentEnd, end);
+        });
+        if (current.length) clusters.push(current);
+
+        const placed = [];
+        clusters.forEach(cluster => {
+          const colEnds = [];
+          const withCols = cluster.map(item => {
+            let col = colEnds.findIndex(end => end <= item.start);
+            if (col === -1) { col = colEnds.length; colEnds.push(item.end); }
+            else colEnds[col] = item.end;
+            return { ...item, col };
+          });
+          const colCount = colEnds.length;
+          withCols.forEach(item => placed.push({ ...item, colCount }));
+        });
+        return placed;
+      }
+
+      function ChevronIcon({ dir }) {
+        const d = dir === "left" ? "M15 6l-6 6 6 6" : "M9 6l6 6-6 6";
+        return <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none"><path d={d} stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>;
+      }
+      function PlusIcon() { return <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" /></svg>; }
+      function DownloadIcon() { return <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none"><path d="M12 3v13m0 0l-5-5m5 5l5-5M5 20h14" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg>; }
+      function SearchIcon() { return <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-slate-300" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2.2" /><path d="M21 21l-4-4" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" /></svg>; }
+      function XIcon() { return <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" /></svg>; }
+      function TrashIcon() { return <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none"><path d="M4 7h16M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2m-7 0v12a2 2 0 002 2h4a2 2 0 002-2V7" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" /></svg>; }
+      function MapPinIcon() { return <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-slate-300" fill="none"><path d="M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11z" stroke="currentColor" strokeWidth="2" /><circle cx="12" cy="10" r="2.4" stroke="currentColor" strokeWidth="2" /></svg>; }
+      function BellIcon() { return <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-slate-300" fill="none"><path d="M6 10a6 6 0 1112 0c0 4 1.5 5.5 2 6H4c.5-.5 2-2 2-6z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /><path d="M10 20a2 2 0 004 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>; }
+      function MenuIcon() { return <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" /></svg>; }
+      function CheckIcon() { return <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-emerald-500" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" /></svg>; }
+      function BrandMark() {
+        return (
+          <svg viewBox="0 0 64 64" className="h-9 w-9 shrink-0">
+            <defs>
+              <linearGradient id="chronovaGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stopColor="#0EA5E9" />
+                <stop offset=".55" stopColor="#22D3EE" />
+                <stop offset="1" stopColor="#10B981" />
+              </linearGradient>
+            </defs>
+            <rect width="64" height="64" rx="18" fill="url(#chronovaGrad)" />
+            <rect x="14" y="18" width="36" height="32" rx="7" fill="white" fillOpacity=".96" />
+            <rect x="14" y="18" width="36" height="10" rx="7" fill="white" />
+            <rect x="21" y="12" width="4" height="10" rx="2" fill="#0c4a6e" />
+            <rect x="39" y="12" width="4" height="10" rx="2" fill="#0c4a6e" />
+            <circle cx="23" cy="36" r="2.8" fill="#0EA5E9" />
+            <circle cx="32" cy="36" r="2.8" fill="#22D3EE" />
+            <circle cx="41" cy="36" r="2.8" fill="#10B981" />
+            <circle cx="23" cy="44" r="2.8" fill="#22D3EE" />
+            <circle cx="32" cy="44" r="2.8" fill="#0EA5E9" />
+          </svg>
+        );
+      }
+
+      function MiniMonth({ anchor, todayKey, selectedKey, onSelect, onMonthShift }) {
+        const weeks = useMemo(() => getMonthMatrix(anchor), [anchor]);
+        const monthIndex = anchor.getMonth();
+        const days = useMemo(() => weeks.reduce((acc, w) => acc.concat(w), []), [weeks]);
+        return (
+          <div>
+            <div className="mb-2 flex items-center justify-between">
+              <p className="text-sm font-black text-slate-800">{formatMonthYear(anchor)}</p>
+              <div className="flex gap-1">
+                <button type="button" onClick={() => onMonthShift(-1)} className="grid h-6 w-6 place-items-center rounded-full text-slate-400 hover:bg-slate-100" aria-label="Previous month"><ChevronIcon dir="left" /></button>
+                <button type="button" onClick={() => onMonthShift(1)} className="grid h-6 w-6 place-items-center rounded-full text-slate-400 hover:bg-slate-100" aria-label="Next month"><ChevronIcon dir="right" /></button>
+              </div>
+            </div>
+            <div className="grid grid-cols-7 text-center text-[10px] font-black text-slate-300">
+              {WEEKDAY_SHORT.map(d => <span key={d}>{d[0]}</span>)}
+            </div>
+            <div className="mt-1 grid grid-cols-7 gap-y-1 text-center text-xs">
+              {days.map(day => {
+                const key = toKey(day);
+                const inMonth = day.getMonth() === monthIndex;
+                return (
+                  <button
+                    type="button"
+                    key={key}
+                    onClick={() => onSelect(key)}
+                    className={
+                      "mx-auto flex h-7 w-7 items-center justify-center rounded-full font-bold transition " +
+                      (key === todayKey ? "bg-slate-950 text-white" :
+                       key === selectedKey ? "bg-sky-100 text-sky-700" :
+                       inMonth ? "text-slate-600 hover:bg-slate-100" : "text-slate-300 hover:bg-slate-50")
+                    }
+                  >{day.getDate()}</button>
+                );
+              })}
+            </div>
+          </div>
+        );
+      }
+
+      function Sidebar({ anchor, todayKey, selectedKey, onSelectDate, onMonthShift, activeCategories, onToggleCategory, categoryCounts, upcoming, onEventClick, onNewEvent, onExport }) {
+        return (
+          <div className="flex w-full flex-col gap-5">
+            <div className="liquid-glass rounded-2xl p-4">
+              <MiniMonth anchor={anchor} todayKey={todayKey} selectedKey={selectedKey} onSelect={onSelectDate} onMonthShift={onMonthShift} />
+            </div>
+
+            <button type="button" onClick={onNewEvent} className="flex items-center justify-center gap-2 rounded-full bg-slate-950 px-4 py-3 text-sm font-black text-white shadow-lg shadow-sky-900/10 transition hover:-translate-y-0.5 hover:bg-sky-700">
+              <PlusIcon /> New event
+            </button>
+
+            <div className="liquid-glass rounded-2xl p-4">
+              <p className="mb-3 text-xs font-black uppercase tracking-[.16em] text-slate-400">Categories</p>
+              <div className="space-y-1">
+                {CATEGORIES.map(cat => {
+                  const active = activeCategories.indexOf(cat.id) !== -1;
+                  return (
+                    <button
+                      type="button"
+                      key={cat.id}
+                      onClick={() => onToggleCategory(cat.id)}
+                      className="flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left text-sm font-bold text-slate-700 transition hover:bg-slate-50"
+                    >
+                      <span className="h-2.5 w-2.5 rounded-full transition" style={{ background: cat.swatch, opacity: active ? 1 : .25 }}></span>
+                      <span className={"flex-1 transition " + (active ? "" : "text-slate-300")}>{cat.label}</span>
+                      <span className="text-xs font-black text-slate-300">{categoryCounts[cat.id] || 0}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="liquid-glass flex-1 rounded-2xl p-4">
+              <p className="mb-3 text-xs font-black uppercase tracking-[.16em] text-slate-400">Upcoming</p>
+              {upcoming.length === 0 && <p className="text-sm text-slate-400">Nothing on the horizon.</p>}
+              <div className="space-y-1">
+                {upcoming.map(ev => (
+                  <button type="button" key={ev.id} onClick={() => onEventClick(ev)} className="flex w-full items-start gap-2.5 rounded-xl px-2 py-2 text-left transition hover:bg-slate-50">
+                    <span className="mt-1 h-2 w-2 shrink-0 rounded-full" style={{ background: CATEGORY_MAP[ev.category].swatch }}></span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-bold text-slate-700">{ev.title}</span>
+                      <span className="block text-xs text-slate-400">{relativeDateLabel(fromKey(ev.date))}{ev.allDay ? "" : " · " + formatTimeLabel(ev.startTime)}</span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <button type="button" onClick={onExport} className="flex items-center justify-center gap-2 rounded-full border border-slate-200 bg-white/70 px-4 py-2.5 text-sm font-bold text-slate-600 transition hover:border-slate-300 hover:bg-white">
+              <DownloadIcon /> Export .ics
+            </button>
+          </div>
+        );
+      }
+
+      function MonthView({ anchor, direction, eventsByDay, todayKey, onDayClick, onEventClick }) {
+        const weeks = useMemo(() => getMonthMatrix(anchor), [anchor]);
+        const monthIndex = anchor.getMonth();
+        const days = useMemo(() => weeks.reduce((acc, w) => acc.concat(w), []), [weeks]);
+
+        return (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={anchor.getFullYear() + "-" + anchor.getMonth()}
+              initial={{ opacity: 0, x: direction >= 0 ? 24 : -24 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: direction >= 0 ? -24 : 24 }}
+              transition={{ duration: .28, ease: "easeOut" }}
+            >
+              <div className="grid grid-cols-7 gap-px overflow-hidden rounded-t-2xl border border-slate-200/70 bg-slate-200/70 text-[11px] font-black uppercase tracking-[.14em] text-slate-400">
+                {WEEKDAY_SHORT.map(d => <div key={d} className="bg-white/90 py-2 text-center">{d}</div>)}
+              </div>
+              <div className="grid grid-cols-7 gap-px overflow-hidden rounded-b-2xl border border-t-0 border-slate-200/70 bg-slate-200/70">
+                {days.map(day => {
+                  const key = toKey(day);
+                  const inMonth = day.getMonth() === monthIndex;
+                  const dayEvents = eventsByDay[key] || [];
+                  const isTodayCell = key === todayKey;
+                  const visible = dayEvents.slice(0, 3);
+                  const extra = dayEvents.length - visible.length;
+                  return (
+                    <div
+                      key={key}
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => onDayClick(key)}
+                      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onDayClick(key); } }}
+                      className={"flex min-h-[100px] cursor-pointer flex-col items-stretch gap-1 bg-white/90 p-1.5 text-left transition hover:bg-sky-50/80 sm:min-h-[124px] sm:p-2 " + (inMonth ? "" : "bg-slate-50/70")}
+                    >
+                      <span className={
+                        "inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold " +
+                        (isTodayCell ? "bg-slate-950 text-white" : inMonth ? "text-slate-700" : "text-slate-300")
+                      }>{day.getDate()}</span>
+                      <div className="flex flex-col gap-1">
+                        {visible.map(ev => (
+                          <button
+                            type="button"
+                            key={ev.id}
+                            onClick={(e) => { e.stopPropagation(); onEventClick(ev); }}
+                            className="truncate rounded-md px-1.5 py-0.5 text-left text-[11px] font-bold"
+                            style={{ background: CATEGORY_MAP[ev.category].soft, color: CATEGORY_MAP[ev.category].text }}
+                            title={ev.title}
+                          >
+                            {!ev.allDay && ev.startTime ? formatTimeLabel(ev.startTime) + " · " : ""}{ev.title}
+                          </button>
+                        ))}
+                        {extra > 0 && <span className="px-1.5 text-[11px] font-bold text-slate-400">+{extra} more</span>}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        );
+      }
+
+      function TimeGridView({ days, eventsByDay, todayKey, onSlotClick, onEventClick, direction, viewKey }) {
+        const scrollRef = useRef(null);
+        useEffect(() => {
+          if (scrollRef.current) scrollRef.current.scrollTop = 6 * 64;
+        }, [viewKey]);
+
+        const now = new Date();
+        const nowMinutes = now.getHours() * 60 + now.getMinutes();
+        const cols = "56px repeat(" + days.length + ", minmax(96px, 1fr))";
+
+        return (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={viewKey}
+              initial={{ opacity: 0, x: direction >= 0 ? 24 : -24 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: direction >= 0 ? -24 : 24 }}
+              transition={{ duration: .26, ease: "easeOut" }}
+              className="overflow-hidden rounded-2xl border border-slate-200/70 bg-white/90"
+            >
+              <div className="cal-scroll overflow-x-auto">
+                <div style={{ minWidth: days.length > 1 ? "720px" : "auto" }}>
+                  <div className="grid border-b border-slate-200/70" style={{ gridTemplateColumns: cols }}>
+                    <div></div>
+                    {days.map(day => {
+                      const key = toKey(day);
+                      return (
+                        <div key={key} className={"border-l border-slate-200/70 py-2 text-center " + (key === todayKey ? "bg-sky-50/70" : "")}>
+                          <p className="text-[10px] font-black uppercase tracking-[.14em] text-slate-400">{WEEKDAY_SHORT[day.getDay()]}</p>
+                          <p className={"mx-auto mt-1 flex h-7 w-7 items-center justify-center rounded-full text-sm font-black " + (key === todayKey ? "bg-slate-950 text-white" : "text-slate-700")}>{day.getDate()}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="grid border-b border-slate-200/70" style={{ gridTemplateColumns: cols }}>
+                    <div className="py-1.5 text-center text-[9px] font-black uppercase tracking-[.1em] text-slate-300">All day</div>
+                    {days.map(day => {
+                      const key = toKey(day);
+                      const allDayEvents = (eventsByDay[key] || []).filter(ev => ev.allDay);
+                      return (
+                        <div key={key} className="min-h-[34px] space-y-1 border-l border-slate-200/70 p-1">
+                          {allDayEvents.map(ev => (
+                            <button type="button" key={ev.id} onClick={() => onEventClick(ev)} className="block w-full truncate rounded-md px-1.5 py-0.5 text-left text-[10px] font-bold" style={{ background: CATEGORY_MAP[ev.category].soft, color: CATEGORY_MAP[ev.category].text }}>{ev.title}</button>
+                          ))}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div ref={scrollRef} className="cal-scroll relative max-h-[560px] overflow-y-auto">
+                    <div className="grid" style={{ gridTemplateColumns: cols }}>
+                      <div className="relative">
+                        {HOURS.map(h => (
+                          <div key={h} className="relative h-16 border-b border-slate-100">
+                            <span className="absolute -top-2 right-2 text-[10px] font-bold text-slate-300">{h === 0 ? "" : minutesToTimeLabel(h * 60)}</span>
+                          </div>
+                        ))}
+                      </div>
+                      {days.map(day => {
+                        const key = toKey(day);
+                        const timed = (eventsByDay[key] || []).filter(ev => !ev.allDay);
+                        const placed = layoutTimedEvents(timed);
+                        return (
+                          <div key={key} className="relative border-l border-slate-100">
+                            {HOURS.map(h => (
+                              <div key={h} className="h-16 border-b border-slate-100 hover:bg-sky-50/60" onClick={() => onSlotClick(key, pad2(h) + ":00")}></div>
+                            ))}
+                            {placed.map(item => {
+                              const top = (item.start / 60) * 64;
+                              const height = Math.max(((item.end - item.start) / 60) * 64 - 2, 20);
+                              const width = 100 / item.colCount;
+                              const left = width * item.col;
+                              return (
+                                <button
+                                  type="button"
+                                  key={item.ev.id}
+                                  onClick={(e) => { e.stopPropagation(); onEventClick(item.ev); }}
+                                  className="absolute overflow-hidden rounded-lg px-1.5 py-1 text-left text-[11px] font-bold shadow-sm transition hover:brightness-95"
+                                  style={{
+                                    top: top + "px", height: height + "px",
+                                    left: "calc(" + left + "% + 2px)",
+                                    width: "calc(" + width + "% - 4px)",
+                                    background: CATEGORY_MAP[item.ev.category].soft,
+                                    color: CATEGORY_MAP[item.ev.category].text,
+                                    borderLeft: "3px solid " + CATEGORY_MAP[item.ev.category].swatch
+                                  }}
+                                >
+                                  <p className="truncate">{item.ev.title}</p>
+                                  {height > 34 && <p className="truncate text-[10px] opacity-80">{formatTimeLabel(item.ev.startTime)}</p>}
+                                </button>
+                              );
+                            })}
+                            {key === todayKey && <div className="now-line" style={{ top: (nowMinutes / 60) * 64 + "px" }}></div>}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        );
+      }
+
+      function AgendaView({ events, todayKey, onEventClick }) {
+        const grouped = useMemo(() => {
+          const map = {};
+          events.forEach(ev => {
+            if (!map[ev.date]) map[ev.date] = [];
+            map[ev.date].push(ev);
+          });
+          return Object.keys(map).sort().map(key => ({
+            key,
+            date: fromKey(key),
+            items: map[key].sort((a, b) => {
+              if (a.allDay && !b.allDay) return -1;
+              if (!a.allDay && b.allDay) return 1;
+              return timeToMinutes(a.startTime) - timeToMinutes(b.startTime);
+            })
+          }));
+        }, [events]);
+
+        if (!grouped.length) {
+          return (
+            <div className="liquid-glass flex flex-col items-center gap-2 rounded-2xl px-6 py-16 text-center">
+              <p className="text-lg font-black text-slate-700">No events match your filters</p>
+              <p className="text-sm text-slate-500">Try adjusting your search or category filters.</p>
+            </div>
+          );
+        }
+
+        return (
+          <div className="space-y-4">
+            {grouped.map(group => (
+              <div key={group.key} className="liquid-glass rounded-2xl p-4 sm:p-5">
+                <p className={"mb-3 text-sm font-black uppercase tracking-[.1em] " + (group.key === todayKey ? "text-sky-600" : "text-slate-400")}>
+                  {agendaHeaderLabel(group.date)}
+                </p>
+                <div className="space-y-2">
+                  {group.items.map(ev => (
+                    <button
+                      type="button"
+                      key={ev.id}
+                      onClick={() => onEventClick(ev)}
+                      className="flex w-full items-center gap-3 rounded-xl border border-slate-100 bg-white/70 px-3 py-2.5 text-left transition hover:border-slate-200 hover:bg-white"
+                    >
+                      <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: CATEGORY_MAP[ev.category].swatch }}></span>
+                      <span className="w-20 shrink-0 text-xs font-bold text-slate-400">{ev.allDay ? "All day" : formatTimeLabel(ev.startTime)}</span>
+                      <span className="min-w-0 flex-1 truncate text-sm font-bold text-slate-800">{ev.title}</span>
+                      {ev.location && <span className="hidden max-w-[160px] shrink-0 truncate text-xs text-slate-400 sm:block">{ev.location}</span>}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+      }
+
+      function EventModal({ draft, onChange, onClose, onSave, onDelete }) {
+        const isEdit = !!draft.id;
+        const titleRef = useRef(null);
+        useEffect(() => { if (titleRef.current) titleRef.current.focus(); }, []);
+
+        function set(field, value) { onChange({ ...draft, [field]: value }); }
+        function handleSubmit(e) { e.preventDefault(); onSave(draft); }
+
+        return (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={onClose}
+          >
+            <motion.form
+              onSubmit={handleSubmit}
+              onClick={(e) => e.stopPropagation()}
+              initial={{ opacity: 0, scale: .95, y: 12 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: .96, y: 8 }}
+              transition={{ duration: .22, ease: "easeOut" }}
+              className="cal-scroll liquid-glass-strong max-h-[88vh] w-full max-w-lg overflow-y-auto rounded-[26px] p-5 sm:p-6"
+              role="dialog" aria-modal="true" aria-label={isEdit ? "Edit event" : "Create event"}
+            >
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-lg font-black text-slate-900">{isEdit ? "Edit event" : "New event"}</h2>
+                <button type="button" onClick={onClose} className="grid h-8 w-8 place-items-center rounded-full text-slate-400 hover:bg-slate-100" aria-label="Close"><XIcon /></button>
+              </div>
+
+              <input
+                ref={titleRef}
+                value={draft.title}
+                onChange={(e) => set("title", e.target.value)}
+                placeholder="Event title"
+                required
+                className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-base font-bold text-slate-900 outline-none focus:border-sky-400"
+              />
+
+              <div className="mt-3 flex items-center justify-between rounded-xl bg-slate-50 px-3.5 py-2.5">
+                <span className="text-sm font-bold text-slate-600">All day</span>
+                <button
+                  type="button"
+                  onClick={() => set("allDay", !draft.allDay)}
+                  className={"relative h-6 w-11 shrink-0 rounded-full transition " + (draft.allDay ? "bg-slate-950" : "bg-slate-200")}
+                  aria-pressed={draft.allDay}
+                >
+                  <span className={"absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all " + (draft.allDay ? "left-[22px]" : "left-0.5")}></span>
+                </button>
+              </div>
+
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                <label className="block">
+                  <span className="mb-1 block text-xs font-black uppercase tracking-[.1em] text-slate-400">{draft.allDay ? "Start date" : "Date"}</span>
+                  <input type="date" value={draft.date} onChange={(e) => set("date", e.target.value)} required className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-700 outline-none focus:border-sky-400" />
+                </label>
+                {draft.allDay ? (
+                  <label className="block">
+                    <span className="mb-1 block text-xs font-black uppercase tracking-[.1em] text-slate-400">End date</span>
+                    <input type="date" value={draft.endDate || draft.date} min={draft.date} onChange={(e) => set("endDate", e.target.value)} className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-700 outline-none focus:border-sky-400" />
+                  </label>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2">
+                    <label className="block">
+                      <span className="mb-1 block text-xs font-black uppercase tracking-[.1em] text-slate-400">Start</span>
+                      <input type="time" value={draft.startTime || "09:00"} onChange={(e) => set("startTime", e.target.value)} className="w-full rounded-xl border border-slate-200 bg-white px-2 py-2 text-sm font-bold text-slate-700 outline-none focus:border-sky-400" />
+                    </label>
+                    <label className="block">
+                      <span className="mb-1 block text-xs font-black uppercase tracking-[.1em] text-slate-400">End</span>
+                      <input type="time" value={draft.endTime || "10:00"} onChange={(e) => set("endTime", e.target.value)} className="w-full rounded-xl border border-slate-200 bg-white px-2 py-2 text-sm font-bold text-slate-700 outline-none focus:border-sky-400" />
+                    </label>
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-3">
+                <span className="mb-1.5 block text-xs font-black uppercase tracking-[.1em] text-slate-400">Category</span>
+                <div className="flex flex-wrap gap-2">
+                  {CATEGORIES.map(cat => {
+                    const active = draft.category === cat.id;
+                    return (
+                      <button
+                        type="button"
+                        key={cat.id}
+                        onClick={() => set("category", cat.id)}
+                        className={"flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-black transition " + (active ? "border-transparent text-white" : "border-slate-200 text-slate-500 hover:border-slate-300")}
+                        style={active ? { background: cat.strong } : {}}
+                      >
+                        <span className="h-2 w-2 rounded-full" style={{ background: active ? "white" : cat.swatch }}></span>
+                        {cat.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <label className="mt-3 block">
+                <span className="mb-1 block text-xs font-black uppercase tracking-[.1em] text-slate-400">Location</span>
+                <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 focus-within:border-sky-400">
+                  <MapPinIcon />
+                  <input value={draft.location} onChange={(e) => set("location", e.target.value)} placeholder="Optional" className="w-full text-sm font-semibold text-slate-700 outline-none placeholder:text-slate-300" />
+                </div>
+              </label>
+
+              <label className="mt-3 block">
+                <span className="mb-1 block text-xs font-black uppercase tracking-[.1em] text-slate-400">Notes</span>
+                <textarea value={draft.notes} onChange={(e) => set("notes", e.target.value)} rows={2} placeholder="Optional" className="w-full resize-none rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 outline-none focus:border-sky-400 placeholder:text-slate-300"></textarea>
+              </label>
+
+              <label className="mt-3 block">
+                <span className="mb-1 block text-xs font-black uppercase tracking-[.1em] text-slate-400">Reminder</span>
+                <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 focus-within:border-sky-400">
+                  <BellIcon />
+                  <select value={draft.reminder} onChange={(e) => set("reminder", e.target.value)} className="w-full bg-transparent text-sm font-semibold text-slate-700 outline-none">
+                    {REMINDER_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                  </select>
+                </div>
+                <span className="mt-1 block text-[11px] text-slate-400">Reminders appear as in-app alerts while Chronova is open in this browser tab.</span>
+              </label>
+
+              <div className="mt-5 flex items-center justify-between gap-2">
+                {isEdit ? (
+                  <button type="button" onClick={() => onDelete(draft.id)} className="flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-bold text-rose-500 hover:bg-rose-50"><TrashIcon /> Delete</button>
+                ) : <span></span>}
+                <div className="flex items-center gap-2">
+                  <button type="button" onClick={onClose} className="rounded-full px-4 py-2.5 text-sm font-bold text-slate-500 hover:bg-slate-100">Cancel</button>
+                  <button type="submit" className="rounded-full bg-slate-950 px-5 py-2.5 text-sm font-black text-white transition hover:bg-sky-700">{isEdit ? "Save changes" : "Create event"}</button>
+                </div>
+              </div>
+            </motion.form>
+          </motion.div>
+        );
+      }
+
+      function ConfirmDialog({ onCancel, onConfirm }) {
+        return (
+          <motion.div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onCancel}>
+            <motion.div onClick={(e) => e.stopPropagation()} initial={{ opacity: 0, scale: .95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: .95 }} className="liquid-glass-strong w-full max-w-sm rounded-[22px] p-5 text-center">
+              <p className="text-base font-black text-slate-900">Delete this event?</p>
+              <p className="mt-1 text-sm text-slate-500">This can't be undone.</p>
+              <div className="mt-5 flex items-center justify-center gap-2">
+                <button type="button" onClick={onCancel} className="rounded-full px-4 py-2.5 text-sm font-bold text-slate-500 hover:bg-slate-100">Cancel</button>
+                <button type="button" onClick={onConfirm} className="rounded-full bg-rose-500 px-5 py-2.5 text-sm font-black text-white hover:bg-rose-600">Delete</button>
+              </div>
+            </motion.div>
+          </motion.div>
+        );
+      }
+
+      function ToastStack({ toasts }) {
+        return (
+          <div className="pointer-events-none fixed bottom-4 left-1/2 z-[70] flex w-full max-w-sm -translate-x-1/2 flex-col gap-2 px-4 sm:bottom-6 sm:left-auto sm:right-6 sm:translate-x-0">
+            <AnimatePresence>
+              {toasts.map(t => (
+                <motion.div
+                  key={t.id}
+                  initial={{ opacity: 0, y: 16, scale: .96 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 8, scale: .96 }}
+                  className="liquid-glass-strong pointer-events-auto flex items-center gap-2 rounded-2xl px-4 py-3 text-sm font-bold text-slate-800"
+                >
+                  {t.tone === "reminder" ? <BellIcon /> : <CheckIcon />}
+                  {t.message}
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        );
+      }
+
+      function TopBar({ view, setView, periodLabel, onPrev, onNext, onToday, search, setSearch, searchInputRef, onNewEvent, onMenuToggle }) {
+        const VIEWS = [["month", "Month"], ["week", "Week"], ["day", "Day"], ["agenda", "Agenda"]];
+        return (
+          <header className="sticky top-0 z-30 border-b border-white/60 bg-white/75 backdrop-blur-xl">
+            <div className="mx-auto max-w-[1400px] px-4 py-3 sm:px-6">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <a href="/" className="flex items-center gap-2.5" aria-label="Ortiz Venture Holdings home">
+                  <BrandMark />
+                  <span className="leading-tight">
+                    <span className="block text-base font-black text-slate-950">Chronova <span className="font-luxury text-sky-600">AI</span></span>
+                    <span className="hidden text-[10px] font-bold uppercase tracking-[.18em] text-slate-400 sm:block">Ortiz Venture Holdings</span>
+                  </span>
+                </a>
+                <div className="flex items-center gap-2">
+                  <button type="button" onClick={onToday} className="rounded-full border border-slate-200 bg-white px-3.5 py-2 text-sm font-bold text-slate-600 hover:border-slate-300">Today</button>
+                  <button type="button" onClick={onPrev} className="grid h-9 w-9 place-items-center rounded-full text-slate-400 hover:bg-slate-100" aria-label="Previous"><ChevronIcon dir="left" /></button>
+                  <button type="button" onClick={onNext} className="grid h-9 w-9 place-items-center rounded-full text-slate-400 hover:bg-slate-100" aria-label="Next"><ChevronIcon dir="right" /></button>
+                  <p className="min-w-[120px] text-sm font-black text-slate-800 sm:min-w-[190px] sm:text-base">{periodLabel}</p>
+                  <button type="button" onClick={onNewEvent} className="hidden items-center gap-2 rounded-full bg-slate-950 px-4 py-2.5 text-sm font-black text-white shadow-lg shadow-sky-900/10 transition hover:-translate-y-0.5 hover:bg-sky-700 sm:inline-flex">
+                    <PlusIcon /> New event
+                  </button>
+                  <button type="button" onClick={onMenuToggle} className="grid h-10 w-10 place-items-center rounded-full text-slate-500 hover:bg-slate-100 lg:hidden" aria-label="Toggle sidebar"><MenuIcon /></button>
+                </div>
+              </div>
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <div className="flex items-center gap-1 rounded-full border border-slate-200 bg-white p-1">
+                  {VIEWS.map(([id, label]) => (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => setView(id)}
+                      className={"rounded-full px-3 py-1.5 text-xs font-black uppercase tracking-[.06em] transition " + (view === id ? "bg-slate-950 text-white" : "text-slate-400 hover:text-slate-700")}
+                    >{label}</button>
+                  ))}
+                </div>
+                <label className="ml-auto flex min-w-0 flex-1 items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 sm:max-w-[240px]">
+                  <SearchIcon />
+                  <input
+                    ref={searchInputRef}
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Search events…"
+                    className="w-full min-w-0 bg-transparent text-sm font-semibold text-slate-700 outline-none placeholder:text-slate-300"
+                  />
+                  {search && <button type="button" onClick={() => setSearch("")} className="shrink-0 text-slate-300 hover:text-slate-500" aria-label="Clear search"><XIcon /></button>}
+                </label>
+                <button type="button" onClick={onNewEvent} className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-2.5 text-sm font-black text-white shadow-lg shadow-sky-900/10 transition hover:bg-sky-700 sm:hidden">
+                  <PlusIcon /> New
+                </button>
+              </div>
+            </div>
+          </header>
+        );
+      }
+
+      function App() {
+        const [events, setEvents] = useLocalStorage(STORAGE_KEYS.events, buildSeedEvents);
+        const [remindedIds, setRemindedIds] = useLocalStorage(STORAGE_KEYS.reminded, []);
+        const [view, setView] = useState("month");
+        const [anchor, setAnchor] = useState(() => startOfDay(new Date()));
+        const [direction, setDirection] = useState(1);
+        const [modal, setModal] = useState(null);
+        const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+        const [search, setSearch] = useState("");
+        const [activeCategories, setActiveCategories] = useState(() => CATEGORIES.map(c => c.id));
+        const [sidebarOpen, setSidebarOpen] = useState(false);
+        const [toasts, setToasts] = useState([]);
+        const searchInputRef = useRef(null);
+        const todayKey = toKey(new Date());
+
+        const pushToast = useCallback((message, tone) => {
+          const id = uid();
+          setToasts(t => [...t, { id, message, tone: tone || "default" }]);
+          setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), 3800);
+        }, []);
+
+        const visibleEvents = useMemo(() => {
+          const q = search.trim().toLowerCase();
+          return events.filter(ev => {
+            if (activeCategories.indexOf(ev.category) === -1) return false;
+            if (!q) return true;
+            return (ev.title || "").toLowerCase().indexOf(q) !== -1 ||
+                   (ev.location || "").toLowerCase().indexOf(q) !== -1 ||
+                   (ev.notes || "").toLowerCase().indexOf(q) !== -1;
+          });
+        }, [events, activeCategories, search]);
+
+        const eventsByDay = useMemo(() => {
+          const map = {};
+          visibleEvents.forEach(ev => {
+            const start = fromKey(ev.date);
+            const end = fromKey(eventEndKey(ev));
+            let cursor = new Date(start);
+            let guard = 0;
+            while (cursor <= end && guard < 60) {
+              const key = toKey(cursor);
+              if (!map[key]) map[key] = [];
+              map[key].push(ev);
+              cursor = addDays(cursor, 1);
+              guard++;
+            }
+          });
+          Object.keys(map).forEach(key => {
+            map[key].sort((a, b) => {
+              if (a.allDay && !b.allDay) return -1;
+              if (!a.allDay && b.allDay) return 1;
+              return timeToMinutes(a.startTime) - timeToMinutes(b.startTime);
+            });
+          });
+          return map;
+        }, [visibleEvents]);
+
+        const upcoming = useMemo(() => {
+          const now = new Date();
+          return visibleEvents
+            .filter(ev => {
+              const end = fromKey(eventEndKey(ev));
+              if (!ev.allDay && ev.endTime) {
+                const parts = ev.endTime.split(":").map(Number);
+                end.setHours(parts[0], parts[1], 0, 0);
+              } else {
+                end.setHours(23, 59, 59, 999);
+              }
+              return end >= now;
+            })
+            .sort((a, b) => {
+              const diff = fromKey(a.date) - fromKey(b.date);
+              if (diff !== 0) return diff;
+              return timeToMinutes(a.startTime) - timeToMinutes(b.startTime);
+            })
+            .slice(0, 6);
+        }, [visibleEvents]);
+
+        const categoryCounts = useMemo(() => {
+          const counts = {};
+          CATEGORIES.forEach(c => counts[c.id] = 0);
+          events.forEach(ev => { counts[ev.category] = (counts[ev.category] || 0) + 1; });
+          return counts;
+        }, [events]);
+
+        const todaysEvents = eventsByDay[todayKey] || [];
+
+        function navigate(step) {
+          setDirection(step);
+          setAnchor(prev => {
+            if (view === "month") return addMonths(prev, step);
+            if (view === "week") return addDays(prev, 7 * step);
+            if (view === "day") return addDays(prev, step);
+            return addMonths(prev, step);
+          });
+        }
+        function goToday() { setDirection(0); setAnchor(startOfDay(new Date())); }
+
+        function openCreate(dateKey, startTime) {
+          const st = startTime || "09:00";
+          setModal({
+            mode: "create",
+            draft: {
+              id: null,
+              title: "",
+              date: dateKey || toKey(anchor),
+              endDate: dateKey || toKey(anchor),
+              allDay: false,
+              startTime: st,
+              endTime: minutesToTimeStr(timeToMinutes(st) + 60),
+              category: "work",
+              location: "",
+              notes: "",
+              reminder: ""
+            }
+          });
+        }
+        function openEdit(ev) { setModal({ mode: "edit", draft: { ...ev } }); }
+        function closeModal() { setModal(null); }
+
+        function saveEvent(draft) {
+          if (!draft.title.trim()) return;
+          const endDate = draft.allDay ? (draft.endDate && draft.endDate >= draft.date ? draft.endDate : draft.date) : draft.date;
+          const startTime = draft.allDay ? null : (draft.startTime || "09:00");
+          let endTime = draft.allDay ? null : (draft.endTime || "10:00");
+          if (!draft.allDay && timeToMinutes(endTime) <= timeToMinutes(startTime)) {
+            endTime = minutesToTimeStr(timeToMinutes(startTime) + 30);
+          }
+          const clean = { ...draft, title: draft.title.trim(), endDate, startTime, endTime };
+          if (draft.id) {
+            setEvents(list => list.map(e => e.id === draft.id ? { ...clean, id: draft.id } : e));
+            pushToast("Event updated");
+          } else {
+            setEvents(list => [...list, { ...clean, id: uid() }]);
+            pushToast("Event created");
+          }
+          setModal(null);
+        }
+        function requestDelete(id) { setConfirmDeleteId(id); }
+        function confirmDelete() {
+          setEvents(list => list.filter(e => e.id !== confirmDeleteId));
+          setConfirmDeleteId(null);
+          setModal(null);
+          pushToast("Event deleted");
+        }
+        function toggleCategory(id) {
+          setActiveCategories(list => list.indexOf(id) === -1 ? [...list, id] : list.filter(x => x !== id));
+        }
+        function resetDemo() {
+          setEvents(buildSeedEvents());
+          setRemindedIds([]);
+          pushToast("Demo calendar reset");
+        }
+        function exportAll() {
+          if (!events.length) { pushToast("No events to export"); return; }
+          downloadText("chronova-calendar.ics", buildICS(events), "text/calendar");
+          pushToast("Calendar exported");
+        }
+        function handleSelectDate(key) {
+          setAnchor(fromKey(key));
+          setSidebarOpen(false);
+        }
+
+        useEffect(() => {
+          function check() {
+            const now = new Date();
+            events.forEach(ev => {
+              if (ev.reminder === "" || ev.reminder == null || ev.allDay) return;
+              const target = fromKey(ev.date);
+              const parts = (ev.startTime || "00:00").split(":").map(Number);
+              target.setHours(parts[0], parts[1], 0, 0);
+              target.setMinutes(target.getMinutes() - Number(ev.reminder));
+              const diff = now - target;
+              const fireKey = ev.id + ":" + target.getTime();
+              if (diff >= 0 && diff < 20000 && remindedIds.indexOf(fireKey) === -1) {
+                pushToast("Reminder: " + ev.title + " at " + formatTimeLabel(ev.startTime), "reminder");
+                setRemindedIds(list => [...list.slice(-200), fireKey]);
+              }
+            });
+          }
+          const interval = setInterval(check, 15000);
+          return () => clearInterval(interval);
+        }, [events, remindedIds, pushToast, setRemindedIds]);
+
+        useEffect(() => {
+          function onKeyDown(e) {
+            const tag = (e.target.tagName || "").toLowerCase();
+            if (tag === "input" || tag === "textarea" || tag === "select") {
+              if (e.key === "Escape") e.target.blur();
+              return;
+            }
+            if (modal || confirmDeleteId) {
+              if (e.key === "Escape") { setModal(null); setConfirmDeleteId(null); }
+              return;
+            }
+            if (e.key === "t" || e.key === "T") goToday();
+            else if (e.key === "n" || e.key === "N") openCreate(toKey(anchor));
+            else if (e.key === "ArrowLeft") navigate(-1);
+            else if (e.key === "ArrowRight") navigate(1);
+            else if (e.key === "/") { e.preventDefault(); if (searchInputRef.current) searchInputRef.current.focus(); }
+            else if (e.key === "1") setView("month");
+            else if (e.key === "2") setView("week");
+            else if (e.key === "3") setView("day");
+            else if (e.key === "4") setView("agenda");
+          }
+          document.addEventListener("keydown", onKeyDown);
+          return () => document.removeEventListener("keydown", onKeyDown);
+        }, [modal, confirmDeleteId, anchor, view]);
+
+        function periodLabel() {
+          if (view === "month") return formatMonthYear(anchor);
+          if (view === "week") {
+            const days = getWeekDays(anchor);
+            const start = days[0], end = days[6];
+            if (start.getMonth() === end.getMonth()) return MONTH_LONG[start.getMonth()] + " " + start.getDate() + "–" + end.getDate() + ", " + end.getFullYear();
+            return formatShortDate(start) + " – " + formatShortDate(end) + ", " + end.getFullYear();
+          }
+          if (view === "day") return formatDayHeader(anchor);
+          return "Agenda";
+        }
+
+        const sidebarProps = {
+          anchor, todayKey, selectedKey: toKey(anchor),
+          onSelectDate: handleSelectDate,
+          onMonthShift: (step) => setAnchor(a => addMonths(a, step)),
+          activeCategories, onToggleCategory: toggleCategory, categoryCounts,
+          upcoming, onEventClick: openEdit,
+          onNewEvent: () => openCreate(toKey(anchor)),
+          onExport: exportAll
+        };
+
+        return (
+          <div className="app-shell">
+            <div className="pointer-events-none fixed inset-x-0 top-0 -z-10 h-[420px] overflow-hidden">
+              <div className="orb left-[6%] top-[-6%] h-56 w-56 bg-cyan-200"></div>
+              <div className="orb right-[8%] top-[4%] h-64 w-64 bg-emerald-200"></div>
+              <div className="orb left-[40%] top-[10%] h-40 w-40 bg-sky-200"></div>
+            </div>
+
+            <TopBar
+              view={view} setView={setView} periodLabel={periodLabel()}
+              onPrev={() => navigate(-1)} onNext={() => navigate(1)} onToday={goToday}
+              search={search} setSearch={setSearch} searchInputRef={searchInputRef}
+              onNewEvent={() => openCreate(toKey(anchor))}
+              onMenuToggle={() => setSidebarOpen(true)}
+            />
+
+            <main className="mx-auto max-w-[1400px] px-4 py-6 sm:px-6 lg:py-8">
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .4 }} className="mb-6">
+                <p className="text-sm font-bold text-sky-600">{greeting()}</p>
+                <h1 className="font-luxury text-3xl text-slate-950 sm:text-4xl">
+                  {todaysEvents.length === 0 ? "A clear day ahead." : todaysEvents.length + (todaysEvents.length === 1 ? " thing" : " things") + " on today."}
+                </h1>
+              </motion.div>
+
+              <div className="flex flex-col gap-6 lg:flex-row">
+                <div className="hidden w-[280px] shrink-0 lg:block">
+                  <div className="sticky top-[132px]">
+                    <Sidebar {...sidebarProps} />
+                  </div>
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <AnimatePresence mode="wait">
+                    <motion.div key={view} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: .18 }}>
+                      {view === "month" && (
+                        <MonthView anchor={anchor} direction={direction} eventsByDay={eventsByDay} todayKey={todayKey} onDayClick={(key) => openCreate(key)} onEventClick={openEdit} />
+                      )}
+                      {view === "week" && (
+                        <TimeGridView days={getWeekDays(anchor)} eventsByDay={eventsByDay} todayKey={todayKey} onSlotClick={(key, time) => openCreate(key, time)} onEventClick={openEdit} direction={direction} viewKey={"week-" + toKey(anchor)} />
+                      )}
+                      {view === "day" && (
+                        <TimeGridView days={[anchor]} eventsByDay={eventsByDay} todayKey={todayKey} onSlotClick={(key, time) => openCreate(key, time)} onEventClick={openEdit} direction={direction} viewKey={"day-" + toKey(anchor)} />
+                      )}
+                      {view === "agenda" && (
+                        <AgendaView events={visibleEvents} todayKey={todayKey} onEventClick={openEdit} />
+                      )}
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
+              </div>
+            </main>
+
+            <footer className="border-t border-slate-100 bg-white/60 px-4 py-6 text-center text-xs text-slate-400 sm:px-6">
+              <p>Chronova AI stores your events locally in this browser — nothing is uploaded. <button type="button" onClick={resetDemo} className="font-bold text-slate-500 underline decoration-dotted underline-offset-2 hover:text-slate-700">Reset demo data</button></p>
+              <p className="mt-1">Built by <a href="/" className="font-bold text-slate-500 hover:text-slate-700">Ortiz Venture Holdings LLC</a> · © {new Date().getFullYear()}</p>
+            </footer>
+
+            <AnimatePresence>
+              {sidebarOpen && (
+                <motion.div className="fixed inset-0 z-40 lg:hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <div className="absolute inset-0 bg-slate-950/40" onClick={() => setSidebarOpen(false)}></div>
+                  <motion.div initial={{ x: -24, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: -24, opacity: 0 }} className="cal-scroll absolute left-0 top-0 h-full w-[300px] overflow-y-auto bg-white/95 p-4 backdrop-blur-xl">
+                    <button type="button" onClick={() => setSidebarOpen(false)} className="mb-2 ml-auto grid h-9 w-9 place-items-center rounded-full text-slate-400 hover:bg-slate-100" aria-label="Close menu"><XIcon /></button>
+                    <Sidebar {...sidebarProps} />
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <AnimatePresence>
+              {modal && (
+                <EventModal
+                  draft={modal.draft}
+                  onChange={(next) => setModal({ ...modal, draft: next })}
+                  onClose={closeModal}
+                  onSave={saveEvent}
+                  onDelete={requestDelete}
+                />
+              )}
+            </AnimatePresence>
+
+            <AnimatePresence>
+              {confirmDeleteId && <ConfirmDialog onCancel={() => setConfirmDeleteId(null)} onConfirm={confirmDelete} />}
+            </AnimatePresence>
+
+            <ToastStack toasts={toasts} />
+          </div>
+        );
+      }
+
+      ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+    </script>
+  </body>
+</html>
