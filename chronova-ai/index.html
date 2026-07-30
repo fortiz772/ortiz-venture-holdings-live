@@ -1887,18 +1887,18 @@
         useEffect(() => {
           function onKeyDown(e) {
             const tag = (e.target.tagName || "").toLowerCase();
-            if (tag === "input" || tag === "textarea" || tag === "select") {
-              if (e.key === "Escape") e.target.blur();
-              return;
-            }
-            if (modal || goalModal || confirmDeleteId || confirmDeleteGoalId || filtersOpen || breathingOpen) {
-              if (e.key === "Escape") {
+            const isTyping = tag === "input" || tag === "textarea" || tag === "select";
+            if (e.key === "Escape") {
+              if (modal || goalModal || confirmDeleteId || confirmDeleteGoalId || filtersOpen || breathingOpen) {
                 setModal(null); setGoalModal(null); setConfirmDeleteId(null);
                 setConfirmDeleteGoalId(null); setFiltersOpen(false); setBreathingOpen(false);
+                return;
               }
+              if (searchOpen) { setSearchOpen(false); setSearch(""); return; }
+              if (isTyping) e.target.blur();
               return;
             }
-            if (e.key === "Escape" && searchOpen) { setSearchOpen(false); setSearch(""); return; }
+            if (isTyping || modal || goalModal || confirmDeleteId || confirmDeleteGoalId || filtersOpen || breathingOpen) return;
             if (e.key === "t" || e.key === "T") goToday();
             else if (e.key === "n" || e.key === "N") openCreate(selectedDayKey);
             else if (e.key === "ArrowLeft") navigate(-1);
