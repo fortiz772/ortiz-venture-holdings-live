@@ -4,15 +4,15 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>Chronova AI — Calendar | Ortiz Venture Holdings LLC</title>
-    <meta name="description" content="Chronova AI is a beautifully designed mobile calendar app for scheduling, time-blocking, and reminders — month, week, day, and agenda views, smart categories, and one-click .ics export.">
+    <meta name="description" content="Chronova AI is a beautifully designed mobile life-and-calendar app — schedule, live weather, focus insights, goals, and a breathing coach in one place.">
     <meta name="theme-color" content="#f7fbff">
     <meta property="og:title" content="Chronova AI | Ortiz Venture Holdings LLC">
-    <meta property="og:description" content="A beautifully designed mobile calendar app for scheduling, time-blocking, and reminders.">
+    <meta property="og:description" content="A beautifully designed mobile life-and-calendar app — schedule, live weather, focus insights, goals, and a breathing coach in one place.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.ortizventureholdings.com/chronova-ai/">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Chronova AI">
-    <meta name="twitter:description" content="A beautifully designed mobile calendar app for scheduling, time-blocking, and reminders.">
+    <meta name="twitter:description" content="A beautifully designed mobile life-and-calendar app — schedule, live weather, focus insights, goals, and a breathing coach in one place.">
     <link rel="canonical" href="https://www.ortizventureholdings.com/chronova-ai/">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%230EA5E9'/%3E%3Cstop offset='.55' stop-color='%2322D3EE'/%3E%3Cstop offset='1' stop-color='%2310B981'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Crect x='14' y='18' width='36' height='32' rx='7' fill='white' fill-opacity='.96'/%3E%3Crect x='14' y='18' width='36' height='10' rx='7' fill='white'/%3E%3Crect x='21' y='12' width='4' height='10' rx='2' fill='%230c4a6e'/%3E%3Crect x='39' y='12' width='4' height='10' rx='2' fill='%230c4a6e'/%3E%3Ccircle cx='23' cy='36' r='2.8' fill='%230EA5E9'/%3E%3Ccircle cx='32' cy='36' r='2.8' fill='%2322D3EE'/%3E%3Ccircle cx='41' cy='36' r='2.8' fill='%2310B981'/%3E%3Ccircle cx='23' cy='44' r='2.8' fill='%2322D3EE'/%3E%3Ccircle cx='32' cy='44' r='2.8' fill='%230EA5E9'/%3E%3C/svg%3E">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -58,6 +58,13 @@
         border: 1px solid rgba(255,255,255,.95);
         box-shadow: 0 24px 80px rgba(14,116,144,.18), inset 0 1px 1px rgba(255,255,255,.95);
       }
+      .liquid-glass {
+        background: rgba(240,249,255,.65);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        border: 1px solid rgba(255,255,255,.85);
+        box-shadow: 0 16px 40px rgba(14,116,144,.1);
+      }
 
       .phone-stage { min-height: 100dvh; width: 100%; }
       .phone-body {
@@ -66,11 +73,14 @@
         width: 100%;
         overflow: hidden;
         background: #f8fafc;
+        display: flex;
+        flex-direction: column;
       }
       .phone-notch, .phone-home-indicator { display: none; }
       .phone-screen {
         position: relative;
-        height: 100%;
+        flex: 1 1 auto;
+        min-height: 0;
         width: 100%;
         overflow-y: auto;
         display: flex;
@@ -157,7 +167,11 @@
 
       const STORAGE_KEYS = {
         events: "chronova.events.v1",
-        reminded: "chronova.reminded.v1"
+        reminded: "chronova.reminded.v1",
+        goals: "chronova.goals.v1",
+        tasks: "chronova.tasks.v1",
+        notes: "chronova.notes.v1",
+        weather: "chronova.weather.v1"
       };
 
       const CATEGORIES = [
@@ -250,6 +264,91 @@
       function uid() { return "e" + Date.now().toString(36) + Math.random().toString(36).slice(2, 9); }
       function eventEndKey(ev) { return ev.endDate || ev.date; }
 
+      function buildEventsByDayMap(list) {
+        const map = {};
+        list.forEach(ev => {
+          const start = fromKey(ev.date);
+          const end = fromKey(eventEndKey(ev));
+          let cursor = new Date(start);
+          let guard = 0;
+          while (cursor <= end && guard < 60) {
+            const key = toKey(cursor);
+            if (!map[key]) map[key] = [];
+            map[key].push(ev);
+            cursor = addDays(cursor, 1);
+            guard++;
+          }
+        });
+        Object.keys(map).forEach(key => {
+          map[key].sort((a, b) => {
+            if (a.allDay && !b.allDay) return -1;
+            if (!a.allDay && b.allDay) return 1;
+            return timeToMinutes(a.startTime) - timeToMinutes(b.startTime);
+          });
+        });
+        return map;
+      }
+
+      function computeUpcoming(list, limit) {
+        const now = new Date();
+        return list
+          .filter(ev => {
+            const end = fromKey(eventEndKey(ev));
+            if (!ev.allDay && ev.endTime) {
+              const parts = ev.endTime.split(":").map(Number);
+              end.setHours(parts[0], parts[1], 0, 0);
+            } else {
+              end.setHours(23, 59, 59, 999);
+            }
+            return end >= now;
+          })
+          .sort((a, b) => {
+            const diff = fromKey(a.date) - fromKey(b.date);
+            if (diff !== 0) return diff;
+            return timeToMinutes(a.startTime) - timeToMinutes(b.startTime);
+          })
+          .slice(0, limit);
+      }
+
+      function findFocusWindow(dayEvents) {
+        const timed = dayEvents
+          .filter(ev => !ev.allDay)
+          .map(ev => ({ start: timeToMinutes(ev.startTime), end: Math.max(timeToMinutes(ev.endTime || ev.startTime), timeToMinutes(ev.startTime) + 15) }))
+          .sort((a, b) => a.start - b.start);
+        const dayStart = 8 * 60, dayEnd = 19 * 60;
+        let cursor = dayStart;
+        let best = null;
+        timed.forEach(ev => {
+          if (ev.start > cursor) {
+            const gap = ev.start - cursor;
+            if (!best || gap > (best.end - best.start)) best = { start: cursor, end: ev.start };
+          }
+          cursor = Math.max(cursor, ev.end);
+        });
+        if (cursor < dayEnd) {
+          const gap = dayEnd - cursor;
+          if (!best || gap > (best.end - best.start)) best = { start: cursor, end: dayEnd };
+        }
+        if (!best || (best.end - best.start) < 30) return null;
+        return best;
+      }
+
+      function computeInsight(todayEvents, goals, tasks) {
+        const timed = todayEvents.length;
+        const openTasks = tasks.filter(t => !t.done).length;
+        const parts = [];
+        if (timed > 0) {
+          const next = todayEvents[0];
+          parts.push(timed + (timed === 1 ? " thing" : " things") + " on today, starting with " + next.title + (next.allDay ? "" : " at " + formatTimeLabel(next.startTime)) + ".");
+        } else {
+          parts.push("Nothing on your calendar today — a clear runway.");
+        }
+        if (openTasks > 0) parts.push(openTasks + " open " + (openTasks === 1 ? "task" : "tasks") + ".");
+        const activeGoals = goals.filter(g => g.progress < 100).sort((a, b) => b.progress - a.progress);
+        if (activeGoals[0]) parts.push("\u201c" + activeGoals[0].title + "\u201d is " + activeGoals[0].progress + "% there.");
+        return parts.join(" ");
+      }
+
       function buildSeedEvents() {
         const today = startOfDay(new Date());
         const k = (offset) => toKey(addDays(today, offset));
@@ -267,6 +366,26 @@
           { id: uid(), title: "Grocery run", date: k(-1), endDate: k(-1), allDay: false, startTime: "18:00", endTime: "18:30", category: "personal", location: "Whole Foods", notes: "", reminder: "" }
         ];
       }
+      function buildSeedGoals() {
+        return [
+          { id: uid(), title: "Ship Chronova v2", target: "Launch", category: "work", progress: 68, createdAt: Date.now() },
+          { id: uid(), title: "Read 12 books this year", target: "12 books", category: "personal", progress: 41, createdAt: Date.now() },
+          { id: uid(), title: "Run a half marathon", target: "13.1 miles", category: "health", progress: 25, createdAt: Date.now() }
+        ];
+      }
+      function buildSeedTasks() {
+        return [
+          { id: uid(), title: "Reply to Ledge follow-up", done: false, createdAt: Date.now() },
+          { id: uid(), title: "Pack for the Austin trip", done: false, createdAt: Date.now() },
+          { id: uid(), title: "Send the Q3 roadmap doc", done: true, createdAt: Date.now() }
+        ];
+      }
+      function buildSeedNotes() {
+        return [
+          { id: uid(), text: "West Middle wants a demo before the 15th \u2014 loop in Sam.", createdAt: Date.now() - 86400000 },
+          { id: uid(), text: "Ledge terminal rollout: confirm pricing tier before Friday's call.", createdAt: Date.now() }
+        ];
+      }
 
       function useLocalStorage(key, initial) {
         const [value, setValue] = useState(() => {
@@ -280,6 +399,66 @@
           try { window.localStorage.setItem(key, JSON.stringify(value)); } catch (err) {}
         }, [key, value]);
         return [value, setValue];
+      }
+
+      const WEATHER_CODE_MAP = {
+        0: { label: "Clear sky", icon: "sun" }, 1: { label: "Mostly clear", icon: "sun" },
+        2: { label: "Partly cloudy", icon: "cloud-sun" }, 3: { label: "Overcast", icon: "cloud" },
+        45: { label: "Foggy", icon: "cloud" }, 48: { label: "Foggy", icon: "cloud" },
+        51: { label: "Light drizzle", icon: "rain" }, 53: { label: "Drizzle", icon: "rain" }, 55: { label: "Dense drizzle", icon: "rain" },
+        61: { label: "Light rain", icon: "rain" }, 63: { label: "Rain", icon: "rain" }, 65: { label: "Heavy rain", icon: "rain" },
+        71: { label: "Light snow", icon: "snow" }, 73: { label: "Snow", icon: "snow" }, 75: { label: "Heavy snow", icon: "snow" },
+        80: { label: "Rain showers", icon: "rain" }, 81: { label: "Rain showers", icon: "rain" }, 82: { label: "Violent showers", icon: "rain" },
+        95: { label: "Thunderstorm", icon: "storm" }, 96: { label: "Thunderstorm", icon: "storm" }, 99: { label: "Thunderstorm", icon: "storm" }
+      };
+      function describeWeather(code) { return WEATHER_CODE_MAP[code] || { label: "Weather", icon: "cloud" }; }
+
+      function useWeather() {
+        const [state, setState] = useState(() => {
+          try {
+            const raw = window.localStorage.getItem(STORAGE_KEYS.weather);
+            if (raw) {
+              const cached = JSON.parse(raw);
+              if (Date.now() - cached.fetchedAt < 45 * 60000) return { status: "ready", data: cached };
+            }
+          } catch (err) {}
+          return { status: "idle" };
+        });
+
+        const load = useCallback(() => {
+          if (!navigator.geolocation) { setState({ status: "error", message: "Location isn't available in this browser." }); return; }
+          setState({ status: "loading" });
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              const { latitude, longitude } = pos.coords;
+              const wxUrl = "https://api.open-meteo.com/v1/forecast?latitude=" + latitude + "&longitude=" + longitude +
+                "&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&temperature_unit=fahrenheit&timezone=auto&forecast_days=1";
+              const placeUrl = "https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=" + latitude + "&longitude=" + longitude + "&localityLanguage=en";
+              Promise.all([
+                fetch(wxUrl).then(r => r.ok ? r.json() : Promise.reject(new Error("weather"))),
+                fetch(placeUrl).then(r => r.ok ? r.json() : null).catch(() => null)
+              ]).then(([wx, place]) => {
+                const placeLabel = place ? [place.city || place.locality, place.principalSubdivision].filter(Boolean).join(", ") : "";
+                const data = {
+                  place: placeLabel || "Your location",
+                  temp: Math.round(wx.current.temperature_2m),
+                  code: wx.current.weather_code,
+                  high: Math.round(wx.daily.temperature_2m_max[0]),
+                  low: Math.round(wx.daily.temperature_2m_min[0]),
+                  precip: wx.daily.precipitation_probability_max[0],
+                  fetchedAt: Date.now()
+                };
+                try { window.localStorage.setItem(STORAGE_KEYS.weather, JSON.stringify(data)); } catch (err) {}
+                setState({ status: "ready", data });
+              }).catch(() => setState({ status: "error", message: "Couldn't load weather right now." }));
+            },
+            () => setState({ status: "error", message: "Location access denied." }),
+            { timeout: 10000 }
+          );
+        }, []);
+
+        useEffect(() => { if (state.status === "idle") load(); }, [state.status, load]);
+        return { status: state.status, data: state.data, message: state.message, reload: load };
       }
 
       function escapeICS(str) {
@@ -377,7 +556,24 @@
       function MapPinIcon() { return <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-slate-300" fill="none"><path d="M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11z" stroke="currentColor" strokeWidth="2" /><circle cx="12" cy="10" r="2.4" stroke="currentColor" strokeWidth="2" /></svg>; }
       function BellIcon() { return <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-slate-300" fill="none"><path d="M6 10a6 6 0 1112 0c0 4 1.5 5.5 2 6H4c.5-.5 2-2 2-6z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /><path d="M10 20a2 2 0 004 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>; }
       function FilterIcon() { return <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none"><path d="M4 7h16M8 12h8M11 17h2" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" /></svg>; }
-      function CheckIcon() { return <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-emerald-500" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" /></svg>; }
+      function CheckIcon() { return <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 shrink-0 text-white" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>; }
+      function SparkleIcon({ className }) { return <svg viewBox="0 0 24 24" className={className || "h-4 w-4"} fill="none"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3z" fill="currentColor" /></svg>; }
+      function LeafIcon({ className }) { return <svg viewBox="0 0 24 24" className={className || "h-4 w-4"} fill="none"><path d="M5 19c8 0 14-6 14-14-8 0-14 6-14 14z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /><path d="M5 19c2-4 5-7 9-9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>; }
+      function TargetIcon({ className }) { return <svg viewBox="0 0 24 24" className={className || "h-4 w-4"} fill="none"><circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="2" /><circle cx="12" cy="12" r="4.2" stroke="currentColor" strokeWidth="2" /><circle cx="12" cy="12" r="1" fill="currentColor" /></svg>; }
+      function BriefcaseIcon({ className }) { return <svg viewBox="0 0 24 24" className={className || "h-4 w-4"} fill="none"><rect x="3.5" y="7.5" width="17" height="12" rx="2" stroke="currentColor" strokeWidth="2" /><path d="M8.5 7.5V6a2 2 0 012-2h3a2 2 0 012 2v1.5" stroke="currentColor" strokeWidth="2" /><path d="M3.5 12.5h17" stroke="currentColor" strokeWidth="2" /></svg>; }
+      function HomeNavIcon({ className }) { return <svg viewBox="0 0 24 24" className={className || "h-4 w-4"} fill="none"><path d="M4 11l8-7 8 7" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /><path d="M6 10v9a1 1 0 001 1h10a1 1 0 001-1v-9" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg>; }
+      function CalendarNavIcon({ className }) { return <svg viewBox="0 0 24 24" className={className || "h-4 w-4"} fill="none"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5" stroke="currentColor" strokeWidth="2.2" /><path d="M8 3v4M16 3v4M3.5 10h17" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" /></svg>; }
+      function LocationIcon() { return <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none"><path d="M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11z" stroke="currentColor" strokeWidth="2" /><circle cx="12" cy="10" r="2.4" stroke="currentColor" strokeWidth="2" /></svg>; }
+      function WeatherIcon({ code, className }) {
+        const kind = describeWeather(code).icon;
+        const cls = className || "h-8 w-8";
+        if (kind === "sun") return <svg viewBox="0 0 24 24" className={cls} fill="none"><circle cx="12" cy="12" r="4.3" fill="#F59E0B" /><g stroke="#F59E0B" strokeWidth="1.8" strokeLinecap="round"><path d="M12 2.5v3M12 18.5v3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M2.5 12h3M18.5 12h3M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1" /></g></svg>;
+        if (kind === "cloud-sun") return <svg viewBox="0 0 24 24" className={cls} fill="none"><circle cx="9" cy="9" r="3.3" fill="#F59E0B" /><path d="M7 20h10a4 4 0 000-8 5.5 5.5 0 00-10.6 1.6A3.6 3.6 0 007 20z" fill="#BAE6FD" stroke="#38BDF8" strokeWidth="1.3" /></svg>;
+        if (kind === "rain") return <svg viewBox="0 0 24 24" className={cls} fill="none"><path d="M6 15h11a4 4 0 000-8 5.5 5.5 0 00-10.6 1.6A3.6 3.6 0 006 15z" fill="#CBD5E1" stroke="#94A3B8" strokeWidth="1.3" /><g stroke="#38BDF8" strokeWidth="1.6" strokeLinecap="round"><path d="M8 18l-1 3M12 18l-1 3M16 18l-1 3" /></g></svg>;
+        if (kind === "snow") return <svg viewBox="0 0 24 24" className={cls} fill="none"><path d="M6 15h11a4 4 0 000-8 5.5 5.5 0 00-10.6 1.6A3.6 3.6 0 006 15z" fill="#E2E8F0" stroke="#94A3B8" strokeWidth="1.3" /><g stroke="#38BDF8" strokeWidth="1.6" strokeLinecap="round"><path d="M8 18v3M12 18v3M16 18v3" /></g></svg>;
+        if (kind === "storm") return <svg viewBox="0 0 24 24" className={cls} fill="none"><path d="M6 13h11a4 4 0 000-8 5.5 5.5 0 00-10.6 1.6A3.6 3.6 0 006 13z" fill="#94A3B8" stroke="#64748B" strokeWidth="1.3" /><path d="M12 14l-2.4 4h2.6L11 22l4-5h-2.5l1.6-3z" fill="#F59E0B" /></svg>;
+        return <svg viewBox="0 0 24 24" className={cls} fill="none"><path d="M6 17h11a4 4 0 000-8 5.5 5.5 0 00-10.6 1.6A3.6 3.6 0 006 17z" fill="#CBD5E1" stroke="#94A3B8" strokeWidth="1.3" /></svg>;
+      }
       function BrandMark() {
         return (
           <svg viewBox="0 0 64 64" className="h-8 w-8 shrink-0">
@@ -840,11 +1036,150 @@
         );
       }
 
+      function GoalModal({ draft, onChange, onClose, onSave, onDelete }) {
+        const isEdit = !!draft.id;
+        const titleRef = useRef(null);
+        useEffect(() => { if (titleRef.current) titleRef.current.focus(); }, []);
+        function set(field, value) { onChange({ ...draft, [field]: value }); }
+        function handleSubmit(e) { e.preventDefault(); onSave(draft); }
+
+        return (
+          <motion.div
+            className="absolute inset-0 z-40 flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={onClose}
+          >
+            <motion.form
+              onSubmit={handleSubmit}
+              onClick={(e) => e.stopPropagation()}
+              initial={{ opacity: 0, scale: .95, y: 12 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: .96, y: 8 }}
+              transition={{ duration: .22, ease: "easeOut" }}
+              className="cal-scroll liquid-glass-strong max-h-[85%] w-full overflow-y-auto rounded-[26px] p-5"
+              role="dialog" aria-modal="true" aria-label={isEdit ? "Edit goal" : "New goal"}
+            >
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-lg font-black text-slate-900">{isEdit ? "Edit goal" : "New goal"}</h2>
+                <button type="button" onClick={onClose} className="grid h-8 w-8 place-items-center rounded-full text-slate-400 hover:bg-slate-100" aria-label="Close"><XIcon /></button>
+              </div>
+
+              <input ref={titleRef} value={draft.title} onChange={(e) => set("title", e.target.value)} placeholder="Goal title" required className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-base font-bold text-slate-900 outline-none focus:border-sky-400" />
+
+              <label className="mt-3 block">
+                <span className="mb-1 block text-xs font-black uppercase tracking-[.1em] text-slate-400">Target (optional)</span>
+                <input value={draft.target} onChange={(e) => set("target", e.target.value)} placeholder="e.g. 12 books, Launch v2" className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 outline-none focus:border-sky-400" />
+              </label>
+
+              <div className="mt-3">
+                <span className="mb-1.5 block text-xs font-black uppercase tracking-[.1em] text-slate-400">Category</span>
+                <div className="flex flex-wrap gap-2">
+                  {CATEGORIES.map(cat => {
+                    const active = draft.category === cat.id;
+                    return (
+                      <button type="button" key={cat.id} onClick={() => set("category", cat.id)} className={"flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-black transition " + (active ? "border-transparent text-white" : "border-slate-200 text-slate-500 hover:border-slate-300")} style={active ? { background: cat.strong } : {}}>
+                        <span className="h-2 w-2 rounded-full" style={{ background: active ? "white" : cat.swatch }}></span>
+                        {cat.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <div className="mb-1.5 flex items-center justify-between">
+                  <span className="text-xs font-black uppercase tracking-[.1em] text-slate-400">Progress</span>
+                  <span className="text-sm font-black text-slate-700">{draft.progress}%</span>
+                </div>
+                <input type="range" min="0" max="100" step="5" value={draft.progress} onChange={(e) => set("progress", Number(e.target.value))} className="w-full accent-sky-500" />
+              </div>
+
+              <div className="mt-5 flex items-center justify-between gap-2">
+                {isEdit ? (
+                  <button type="button" onClick={() => onDelete(draft.id)} className="flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-bold text-rose-500 hover:bg-rose-50"><TrashIcon /> Delete</button>
+                ) : <span></span>}
+                <div className="flex items-center gap-2">
+                  <button type="button" onClick={onClose} className="rounded-full px-4 py-2.5 text-sm font-bold text-slate-500 hover:bg-slate-100">Cancel</button>
+                  <button type="submit" className="rounded-full bg-slate-950 px-5 py-2.5 text-sm font-black text-white transition hover:bg-sky-700">{isEdit ? "Save changes" : "Create goal"}</button>
+                </div>
+              </div>
+            </motion.form>
+          </motion.div>
+        );
+      }
+
+      const BREATH_PATTERNS = [
+        { id: "4-4-6", label: "4-4-6 Calm", inhale: 4, hold: 4, exhale: 6 },
+        { id: "4-7-8", label: "4-7-8 Wind down", inhale: 4, hold: 7, exhale: 8 },
+        { id: "box", label: "Box breathing", inhale: 4, hold: 4, exhale: 4, hold2: 4 }
+      ];
+
+      function BreathingModal({ onClose }) {
+        const [patternId, setPatternId] = useState("4-4-6");
+        const [running, setRunning] = useState(false);
+        const [phase, setPhase] = useState("inhale");
+        const timeoutRef = useRef(null);
+        const pattern = BREATH_PATTERNS.find(p => p.id === patternId);
+        const phases = pattern.hold2 ? ["inhale", "hold", "exhale", "hold2"] : ["inhale", "hold", "exhale"];
+
+        useEffect(() => {
+          if (!running) return;
+          let idx = phases.indexOf(phase);
+          if (idx === -1) idx = 0;
+          function step() {
+            const current = phases[idx];
+            setPhase(current);
+            const secs = pattern[current] || 4;
+            timeoutRef.current = setTimeout(() => {
+              idx = (idx + 1) % phases.length;
+              step();
+            }, secs * 1000);
+          }
+          step();
+          return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); };
+        }, [running, patternId]);
+
+        function selectPattern(id) { setPatternId(id); setRunning(false); setPhase("inhale"); }
+
+        const scale = (phase === "inhale" || phase === "hold") ? 1.35 : 0.85;
+        const duration = pattern[phase] || pattern.hold || 4;
+        const phaseLabel = phase === "inhale" ? "Inhale" : phase === "exhale" ? "Exhale" : "Hold";
+
+        return (
+          <motion.div className="absolute inset-0 z-40 flex flex-col bg-white" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <div className="flex items-center justify-between px-4" style={{ paddingTop: "calc(1rem + env(safe-area-inset-top))" }}>
+              <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">Breathe</p>
+              <button type="button" onClick={onClose} className="grid h-9 w-9 place-items-center rounded-full text-slate-400 hover:bg-slate-100" aria-label="Close"><XIcon /></button>
+            </div>
+
+            <div className="flex flex-1 flex-col items-center justify-center px-6">
+              <motion.div
+                animate={{ scale }}
+                transition={{ duration, ease: "easeInOut" }}
+                className="grid h-40 w-40 place-items-center rounded-full shadow-xl shadow-sky-900/20"
+                style={{ background: "radial-gradient(circle at 35% 30%, #7DD3FC, #0EA5E9 55%, #0369A1)" }}
+              >
+                <span className="text-lg font-black text-white">{running ? phaseLabel : "Ready"}</span>
+              </motion.div>
+              <p className="mt-6 text-sm font-bold text-slate-500">{pattern.label}</p>
+              <p className="mt-1 text-xs font-semibold text-slate-400">Inhale · hold · exhale</p>
+
+              <div className="mt-6 flex flex-wrap justify-center gap-2">
+                {BREATH_PATTERNS.map(p => (
+                  <button type="button" key={p.id} onClick={() => selectPattern(p.id)} className={"rounded-full px-3 py-1.5 text-xs font-black " + (patternId === p.id ? "bg-slate-950 text-white" : "bg-slate-100 text-slate-400")}>{p.label}</button>
+                ))}
+              </div>
+
+              <button type="button" onClick={() => setRunning(r => !r)} className="mt-8 rounded-full bg-slate-950 px-10 py-3.5 text-sm font-black text-white">{running ? "Stop" : "Start"}</button>
+              <p className="mt-4 max-w-[260px] text-center text-xs font-semibold text-slate-400">A detailed live breath coach for focus, stress, and wind-down.</p>
+            </div>
+          </motion.div>
+        );
+      }
+
       function ConfirmDialog({ onCancel, onConfirm }) {
         return (
           <motion.div className="absolute inset-0 z-[45] flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onCancel}>
             <motion.div onClick={(e) => e.stopPropagation()} initial={{ opacity: 0, scale: .95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: .95 }} className="liquid-glass-strong w-full max-w-sm rounded-[22px] p-5 text-center">
-              <p className="text-base font-black text-slate-900">Delete this event?</p>
+              <p className="text-base font-black text-slate-900">Delete this?</p>
               <p className="mt-1 text-sm text-slate-500">This can't be undone.</p>
               <div className="mt-5 flex items-center justify-center gap-2">
                 <button type="button" onClick={onCancel} className="rounded-full px-4 py-2.5 text-sm font-bold text-slate-500 hover:bg-slate-100">Cancel</button>
@@ -857,7 +1192,7 @@
 
       function ToastStack({ toasts }) {
         return (
-          <div className="pointer-events-none absolute inset-x-4 z-[45] flex flex-col gap-2" style={{ bottom: "calc(5.5rem + env(safe-area-inset-bottom))" }}>
+          <div className="pointer-events-none absolute inset-x-4 z-[45] flex flex-col gap-2" style={{ bottom: "calc(64px + 5.5rem + env(safe-area-inset-bottom))" }}>
             <AnimatePresence>
               {toasts.map(t => (
                 <motion.div
@@ -867,7 +1202,7 @@
                   exit={{ opacity: 0, y: 8, scale: .96 }}
                   className="liquid-glass-strong pointer-events-auto flex items-center gap-2 rounded-2xl px-4 py-3 text-sm font-bold text-slate-800"
                 >
-                  {t.tone === "reminder" ? <BellIcon /> : <CheckIcon />}
+                  {t.tone === "reminder" ? <BellIcon /> : <span className="grid h-4 w-4 place-items-center rounded-full bg-emerald-500"><CheckIcon /></span>}
                   {t.message}
                 </motion.div>
               ))}
@@ -876,22 +1211,22 @@
         );
       }
 
-      function FAB({ onClick }) {
+      function FAB({ onClick, bottomOffset }) {
         return (
           <motion.button
             type="button"
             onClick={onClick}
             whileTap={{ scale: .92 }}
             className="absolute right-5 z-30 grid h-14 w-14 place-items-center rounded-full bg-slate-950 text-white shadow-xl shadow-sky-900/25"
-            style={{ bottom: "calc(1.5rem + env(safe-area-inset-bottom))" }}
-            aria-label="New event"
+            style={{ bottom: bottomOffset }}
+            aria-label="Create new"
           >
             <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" /></svg>
           </motion.button>
         );
       }
 
-      function Header({ periodLabel, onPrev, onNext, onToday, onOpenFilters, searchOpen, setSearchOpen, search, setSearch, searchInputRef }) {
+      function Header({ tab, periodLabel, onPrev, onNext, onToday, onOpenFilters, searchOpen, setSearchOpen, search, setSearch, searchInputRef, onSearchIconClick }) {
         return (
           <div className="border-b border-slate-100">
             <div className="flex h-12 items-center gap-2 px-4">
@@ -900,14 +1235,14 @@
                 <span className="truncate text-sm font-black text-slate-950">Chronova <span className="font-luxury text-sky-600">AI</span></span>
               </a>
               <div className="ml-auto flex shrink-0 items-center gap-1">
-                <button type="button" onClick={() => setSearchOpen(v => !v)} className="grid h-9 w-9 place-items-center rounded-full text-slate-500 hover:bg-slate-100" aria-label="Search">
+                <button type="button" onClick={onSearchIconClick} className="grid h-9 w-9 place-items-center rounded-full text-slate-500 hover:bg-slate-100" aria-label="Search">
                   <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2.2" /><path d="M21 21l-4-4" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" /></svg>
                 </button>
                 <button type="button" onClick={onOpenFilters} className="grid h-9 w-9 place-items-center rounded-full text-slate-500 hover:bg-slate-100" aria-label="Filters and date"><FilterIcon /></button>
               </div>
             </div>
 
-            {searchOpen ? (
+            {searchOpen && (
               <div className="flex h-12 items-center gap-2 px-4">
                 <div className="flex flex-1 items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2">
                   <SearchIcon />
@@ -915,7 +1250,9 @@
                 </div>
                 <button type="button" onClick={() => { setSearchOpen(false); setSearch(""); }} className="shrink-0 text-sm font-bold text-sky-600">Cancel</button>
               </div>
-            ) : (
+            )}
+
+            {!searchOpen && tab === "calendar" && (
               <div className="flex h-12 items-center gap-1 px-2">
                 <button type="button" onClick={onPrev} className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-slate-400 hover:bg-slate-100" aria-label="Previous"><ChevronIcon dir="left" /></button>
                 <button type="button" onClick={onOpenFilters} className="min-w-0 flex-1 truncate text-center text-[15px] font-black text-slate-900">{periodLabel}</button>
@@ -943,22 +1280,399 @@
         );
       }
 
+      function BottomTabBar({ tab, setTab }) {
+        const TABS = [
+          ["home", "Home", HomeNavIcon],
+          ["calendar", "Calendar", CalendarNavIcon],
+          ["insights", "Insights", null],
+          ["goals", "Goals", TargetIcon],
+          ["business", "Business", BriefcaseIcon]
+        ];
+        return (
+          <div className="flex shrink-0 items-stretch justify-around border-t border-slate-100 bg-white/95 backdrop-blur-xl" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
+            {TABS.map(([id, label, Icon]) => {
+              const active = tab === id;
+              if (id === "insights") {
+                return (
+                  <button type="button" key={id} onClick={() => setTab(id)} className="flex flex-1 flex-col items-center justify-center gap-1 py-2" aria-label="Insights">
+                    <span className="grid h-9 w-9 place-items-center rounded-full text-white shadow-lg shadow-sky-900/25" style={{ background: "linear-gradient(135deg,#0EA5E9,#22D3EE 55%,#10B981)", opacity: active ? 1 : .85 }}>
+                      <SparkleIcon className="h-4 w-4" />
+                    </span>
+                    <span className={"text-[10px] font-bold " + (active ? "text-slate-900" : "text-slate-400")}>{label}</span>
+                  </button>
+                );
+              }
+              return (
+                <button type="button" key={id} onClick={() => setTab(id)} className="flex flex-1 flex-col items-center justify-center gap-1 py-2.5" aria-label={label}>
+                  <Icon className={"h-5 w-5 " + (active ? "text-slate-950" : "text-slate-300")} />
+                  <span className={"text-[10px] font-bold " + (active ? "text-slate-900" : "text-slate-400")}>{label}</span>
+                </button>
+              );
+            })}
+          </div>
+        );
+      }
+
+      function WeatherCard({ weather }) {
+        if (weather.status === "loading" || weather.status === "idle") {
+          return (
+            <div className="rounded-2xl border border-slate-100 p-4">
+              <p className="text-xs font-black uppercase tracking-[.14em] text-sky-500">Live weather</p>
+              <p className="mt-2 text-sm font-semibold text-slate-400">Getting your local forecast…</p>
+            </div>
+          );
+        }
+        if (weather.status === "error") {
+          return (
+            <div className="rounded-2xl border border-slate-100 p-4">
+              <div className="flex items-center gap-2 text-sky-500"><LocationIcon /><p className="text-xs font-black uppercase tracking-[.14em]">Live weather</p></div>
+              <p className="mt-2 text-sm font-semibold text-slate-400">{weather.message || "Weather unavailable."}</p>
+              <button type="button" onClick={weather.reload} className="mt-2 text-xs font-black text-sky-600">Try again ›</button>
+            </div>
+          );
+        }
+        const wx = weather.data;
+        const desc = describeWeather(wx.code);
+        return (
+          <div className="rounded-2xl border border-slate-100 p-4">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-xs font-black uppercase tracking-[.14em] text-sky-500">Live weather</p>
+                <p className="truncate text-sm font-bold text-slate-800">{wx.place}</p>
+              </div>
+              <WeatherIcon code={wx.code} />
+            </div>
+            <p className="mt-2 text-4xl font-black text-slate-950">{wx.temp}°</p>
+            <p className="text-sm font-semibold text-slate-500">{desc.label}</p>
+            <div className="mt-3 flex gap-2 text-xs font-bold text-slate-500">
+              <span className="rounded-full bg-slate-50 px-2.5 py-1">H {wx.high}°</span>
+              <span className="rounded-full bg-slate-50 px-2.5 py-1">L {wx.low}°</span>
+              <span className="rounded-full bg-slate-50 px-2.5 py-1">{wx.precip}% rain</span>
+            </div>
+          </div>
+        );
+      }
+
+      function HomeScreen({ todayEvents, insight, focusWindow, weather, goals, tasks, onToggleTask, onAddTask, upcoming, onEventClick, onOpenBreathing, onOpenGoal, onGoTab }) {
+        const [taskInput, setTaskInput] = useState("");
+        function submitTask(e) {
+          e.preventDefault();
+          if (!taskInput.trim()) return;
+          onAddTask(taskInput.trim());
+          setTaskInput("");
+        }
+        return (
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm font-bold text-sky-600">{greeting()}</p>
+              <h1 className="font-luxury text-3xl text-slate-950">{formatDayHeader(new Date())}</h1>
+            </div>
+
+            <div className="liquid-glass rounded-2xl p-4">
+              <div className="flex items-center gap-2 text-sky-600">
+                <SparkleIcon className="h-4 w-4" />
+                <p className="text-xs font-black uppercase tracking-[.14em]">Chronova Insight</p>
+              </div>
+              <p className="mt-2 text-[15px] font-bold leading-snug text-slate-800">{insight}</p>
+            </div>
+
+            {todayEvents.length > 0 && (
+              <div className="rounded-2xl border border-slate-100 p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <p className="text-xs font-black uppercase tracking-[.14em] text-slate-400">Today</p>
+                  <button type="button" onClick={() => onGoTab("calendar")} className="text-xs font-black text-sky-600">Open calendar ›</button>
+                </div>
+                <div className="space-y-2">
+                  {todayEvents.slice(0, 3).map(ev => (
+                    <button type="button" key={ev.id} onClick={() => onEventClick(ev)} className="flex w-full items-center gap-3 rounded-xl bg-slate-50 px-3 py-2.5 text-left">
+                      <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: CATEGORY_MAP[ev.category].swatch }}></span>
+                      <span className="w-16 shrink-0 text-xs font-bold text-slate-400">{ev.allDay ? "All day" : formatTimeLabel(ev.startTime)}</span>
+                      <span className="min-w-0 flex-1 truncate text-sm font-bold text-slate-800">{ev.title}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {focusWindow && (
+              <div className="overflow-hidden rounded-2xl p-4 text-white" style={{ background: "linear-gradient(135deg,#0369A1,#0EA5E9 55%,#10B981)" }}>
+                <p className="text-xs font-black uppercase tracking-[.14em] text-cyan-100">Focus window</p>
+                <p className="mt-1 text-xl font-black">{minutesToTimeLabel(focusWindow.start)} – {minutesToTimeLabel(focusWindow.end)}</p>
+                <p className="mt-1 text-sm font-semibold text-white/85">Your longest open block today — good for deep work.</p>
+              </div>
+            )}
+
+            <WeatherCard weather={weather} />
+
+            <button type="button" onClick={onOpenBreathing} className="flex w-full items-center gap-3 rounded-2xl border border-slate-100 p-4 text-left">
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full" style={{ background: "radial-gradient(circle at 35% 30%,#7DD3FC,#0EA5E9 65%)" }}>
+                <LeafIcon className="h-4 w-4 text-white" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-black text-slate-900">Breathe</span>
+                <span className="block text-xs font-semibold text-slate-400">Live breath coach for focus and wind-down</span>
+              </span>
+              <ChevronIcon dir="right" />
+            </button>
+
+            {goals.length > 0 && (
+              <div className="rounded-2xl border border-slate-100 p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <p className="text-xs font-black uppercase tracking-[.14em] text-slate-400">Goals</p>
+                  <button type="button" onClick={() => onGoTab("goals")} className="text-xs font-black text-sky-600">View all ›</button>
+                </div>
+                <div className="space-y-3">
+                  {goals.slice(0, 3).map(g => (
+                    <button type="button" key={g.id} onClick={() => onOpenGoal(g)} className="block w-full text-left">
+                      <div className="mb-1 flex items-center justify-between gap-2">
+                        <span className="min-w-0 flex-1 truncate text-sm font-bold text-slate-800">{g.title}</span>
+                        <span className="shrink-0 text-xs font-black text-slate-400">{g.progress}%</span>
+                      </div>
+                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+                        <div className="h-full rounded-full" style={{ width: g.progress + "%", background: CATEGORY_MAP[g.category].swatch }}></div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="rounded-2xl border border-slate-100 p-4">
+              <p className="mb-3 text-xs font-black uppercase tracking-[.14em] text-slate-400">Tasks</p>
+              <div className="space-y-1.5">
+                {tasks.map(t => (
+                  <button type="button" key={t.id} onClick={() => onToggleTask(t.id)} className="flex w-full items-center gap-2.5 rounded-xl px-1 py-1.5 text-left">
+                    <span className={"grid h-5 w-5 shrink-0 place-items-center rounded-full border-2 " + (t.done ? "border-emerald-500 bg-emerald-500" : "border-slate-300")}>
+                      {t.done && <CheckIcon />}
+                    </span>
+                    <span className={"text-sm font-semibold " + (t.done ? "text-slate-400 line-through" : "text-slate-700")}>{t.title}</span>
+                  </button>
+                ))}
+                {tasks.length === 0 && <p className="px-1 text-sm text-slate-400">No tasks yet.</p>}
+              </div>
+              <form onSubmit={submitTask} className="mt-2 flex items-center gap-2">
+                <input value={taskInput} onChange={(e) => setTaskInput(e.target.value)} placeholder="Add a task…" className="w-full min-w-0 rounded-full border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 outline-none focus:border-sky-400" />
+                <button type="submit" className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-slate-950 text-white" aria-label="Add task"><PlusIcon /></button>
+              </form>
+            </div>
+
+            {upcoming.length > 0 && (
+              <div className="rounded-2xl border border-slate-100 p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <p className="text-xs font-black uppercase tracking-[.14em] text-slate-400">Upcoming</p>
+                  <button type="button" onClick={() => onGoTab("calendar")} className="text-xs font-black text-sky-600">View calendar ›</button>
+                </div>
+                <div className="space-y-1">
+                  {upcoming.map(ev => (
+                    <button type="button" key={ev.id} onClick={() => onEventClick(ev)} className="flex w-full items-start gap-2.5 rounded-xl px-1 py-2 text-left">
+                      <span className="mt-1 h-2 w-2 shrink-0 rounded-full" style={{ background: CATEGORY_MAP[ev.category].swatch }}></span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-sm font-bold text-slate-700">{ev.title}</span>
+                        <span className="block text-xs text-slate-400">{relativeDateLabel(fromKey(ev.date))}{ev.allDay ? "" : " · " + formatTimeLabel(ev.startTime)}</span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      function InsightsScreen({ insight, focusWindow, weekStats, events, goals, onEventClick }) {
+        const [query, setQuery] = useState("");
+        const results = useMemo(() => {
+          const q = query.trim().toLowerCase();
+          if (!q) return [];
+          return events.filter(ev => (ev.title || "").toLowerCase().indexOf(q) !== -1 || (ev.notes || "").toLowerCase().indexOf(q) !== -1 || (ev.location || "").toLowerCase().indexOf(q) !== -1).slice(0, 8);
+        }, [query, events]);
+        const activeGoals = goals.filter(g => g.progress < 100).slice(0, 4);
+
+        return (
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm font-bold text-sky-600">Insights</p>
+              <h1 className="font-luxury text-3xl text-slate-950">Your week, at a glance.</h1>
+            </div>
+
+            <label className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 py-2.5">
+              <SparkleIcon className="h-4 w-4 text-sky-500" />
+              <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Ask about your schedule…" className="w-full min-w-0 bg-transparent text-sm font-semibold text-slate-700 outline-none placeholder:text-slate-300" />
+            </label>
+
+            {query.trim() ? (
+              <div className="rounded-2xl border border-slate-100 p-4">
+                <p className="mb-3 text-xs font-black uppercase tracking-[.14em] text-slate-400">{results.length} match{results.length === 1 ? "" : "es"}</p>
+                {results.length === 0 ? (
+                  <p className="text-sm text-slate-400">Nothing found. Try a different word.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {results.map(ev => (
+                      <button type="button" key={ev.id} onClick={() => onEventClick(ev)} className="flex w-full items-center gap-3 rounded-xl bg-slate-50 px-3 py-2.5 text-left">
+                        <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: CATEGORY_MAP[ev.category].swatch }}></span>
+                        <span className="min-w-0 flex-1 truncate text-sm font-bold text-slate-800">{ev.title}</span>
+                        <span className="shrink-0 text-xs font-bold text-slate-400">{formatShortDate(fromKey(ev.date))}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>
+                <div className="liquid-glass rounded-2xl p-4">
+                  <div className="flex items-center gap-2 text-sky-600"><SparkleIcon className="h-4 w-4" /><p className="text-xs font-black uppercase tracking-[.14em]">Brief</p></div>
+                  <p className="mt-2 text-[15px] font-bold leading-snug text-slate-800">{insight}</p>
+                </div>
+
+                {focusWindow && (
+                  <div className="overflow-hidden rounded-2xl p-4 text-white" style={{ background: "linear-gradient(135deg,#0369A1,#0EA5E9 55%,#10B981)" }}>
+                    <p className="text-xs font-black uppercase tracking-[.14em] text-cyan-100">Focus window</p>
+                    <p className="mt-1 text-xl font-black">{minutesToTimeLabel(focusWindow.start)} – {minutesToTimeLabel(focusWindow.end)}</p>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="rounded-2xl border border-slate-100 p-3 text-center">
+                    <p className="text-2xl font-black text-slate-950">{weekStats.eventCount}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-[.04em] text-slate-400">This week</p>
+                  </div>
+                  <div className="rounded-2xl border border-slate-100 p-3 text-center">
+                    <p className="text-2xl font-black text-slate-950">{weekStats.busiestLabel}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-[.04em] text-slate-400">Busiest day</p>
+                  </div>
+                  <div className="rounded-2xl border border-slate-100 p-3 text-center">
+                    <p className="text-2xl font-black text-slate-950">{weekStats.openTasks}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-[.04em] text-slate-400">Open tasks</p>
+                  </div>
+                </div>
+
+                {activeGoals.length > 0 && (
+                  <div className="rounded-2xl border border-slate-100 p-4">
+                    <p className="mb-3 text-xs font-black uppercase tracking-[.14em] text-slate-400">Goals in progress</p>
+                    <div className="space-y-3">
+                      {activeGoals.map(g => (
+                        <div key={g.id}>
+                          <div className="mb-1 flex items-center justify-between gap-2">
+                            <span className="min-w-0 flex-1 truncate text-sm font-bold text-slate-800">{g.title}</span>
+                            <span className="shrink-0 text-xs font-black text-slate-400">{g.progress}%</span>
+                          </div>
+                          <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+                            <div className="h-full rounded-full" style={{ width: g.progress + "%", background: CATEGORY_MAP[g.category].swatch }}></div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        );
+      }
+
+      function GoalsScreen({ goals, onOpenGoal, onNewGoal }) {
+        return (
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm font-bold text-sky-600">Goals</p>
+              <h1 className="font-luxury text-3xl text-slate-950">Track what matters.</h1>
+            </div>
+            {goals.length === 0 ? (
+              <button type="button" onClick={onNewGoal} className="flex w-full flex-col items-center gap-2 rounded-2xl border border-dashed border-slate-200 py-10 text-center">
+                <TargetIcon className="h-6 w-6 text-slate-300" />
+                <span className="text-sm font-bold text-slate-400">No goals yet — add one</span>
+              </button>
+            ) : (
+              <div className="space-y-3">
+                {goals.map(g => (
+                  <button type="button" key={g.id} onClick={() => onOpenGoal(g)} className="block w-full rounded-2xl border border-slate-100 p-4 text-left">
+                    <div className="flex items-center gap-2">
+                      <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: CATEGORY_MAP[g.category].swatch }}></span>
+                      <span className="min-w-0 flex-1 truncate text-sm font-black text-slate-900">{g.title}</span>
+                      <span className="shrink-0 text-sm font-black text-slate-400">{g.progress}%</span>
+                    </div>
+                    {g.target && <p className="mt-1 text-xs font-semibold text-slate-400">{g.target}</p>}
+                    <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-slate-100">
+                      <div className="h-full rounded-full transition-all" style={{ width: g.progress + "%", background: CATEGORY_MAP[g.category].swatch }}></div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      function BusinessScreen({ workEvents, notes, noteInput, setNoteInput, onAddNote, onDeleteNote, onEventClick }) {
+        return (
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm font-bold text-sky-600">Business</p>
+              <h1 className="font-luxury text-3xl text-slate-950">Work, at a glance.</h1>
+            </div>
+
+            <div className="rounded-2xl border border-slate-100 p-4">
+              <p className="mb-3 text-xs font-black uppercase tracking-[.14em] text-slate-400">Work schedule</p>
+              {workEvents.length === 0 ? (
+                <p className="text-sm text-slate-400">No work events coming up.</p>
+              ) : (
+                <div className="space-y-2">
+                  {workEvents.slice(0, 6).map(ev => (
+                    <button type="button" key={ev.id} onClick={() => onEventClick(ev)} className="flex w-full items-center gap-3 rounded-xl bg-slate-50 px-3 py-2.5 text-left">
+                      <BriefcaseIcon className="h-4 w-4 shrink-0 text-sky-500" />
+                      <span className="min-w-0 flex-1 truncate text-sm font-bold text-slate-800">{ev.title}</span>
+                      <span className="shrink-0 text-xs font-bold text-slate-400">{relativeDateLabel(fromKey(ev.date))}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="rounded-2xl border border-slate-100 p-4">
+              <p className="mb-3 text-xs font-black uppercase tracking-[.14em] text-slate-400">Notes</p>
+              <form onSubmit={onAddNote} className="mb-3 flex items-center gap-2">
+                <input value={noteInput} onChange={(e) => setNoteInput(e.target.value)} placeholder="Quick business note…" className="w-full min-w-0 rounded-full border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 outline-none focus:border-sky-400" />
+                <button type="submit" className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-slate-950 text-white" aria-label="Add note"><PlusIcon /></button>
+              </form>
+              <div className="space-y-2">
+                {notes.map(n => (
+                  <div key={n.id} className="flex items-start gap-2 rounded-xl bg-slate-50 px-3 py-2.5">
+                    <span className="min-w-0 flex-1 text-sm font-semibold text-slate-700">{n.text}</span>
+                    <button type="button" onClick={() => onDeleteNote(n.id)} className="shrink-0 text-slate-300 hover:text-rose-500" aria-label="Delete note"><XIcon /></button>
+                  </div>
+                ))}
+                {notes.length === 0 && <p className="text-sm text-slate-400">No notes yet.</p>}
+              </div>
+            </div>
+          </div>
+        );
+      }
+
       function App() {
         const [events, setEvents] = useLocalStorage(STORAGE_KEYS.events, buildSeedEvents);
         const [remindedIds, setRemindedIds] = useLocalStorage(STORAGE_KEYS.reminded, []);
+        const [goals, setGoals] = useLocalStorage(STORAGE_KEYS.goals, buildSeedGoals);
+        const [tasks, setTasks] = useLocalStorage(STORAGE_KEYS.tasks, buildSeedTasks);
+        const [notes, setNotes] = useLocalStorage(STORAGE_KEYS.notes, buildSeedNotes);
+        const [tab, setTab] = useState("home");
         const [view, setView] = useState("month");
         const [anchor, setAnchor] = useState(() => startOfDay(new Date()));
         const [direction, setDirection] = useState(1);
         const [selectedDayKey, setSelectedDayKey] = useState(() => toKey(new Date()));
         const [modal, setModal] = useState(null);
+        const [goalModal, setGoalModal] = useState(null);
+        const [breathingOpen, setBreathingOpen] = useState(false);
         const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+        const [confirmDeleteGoalId, setConfirmDeleteGoalId] = useState(null);
         const [search, setSearch] = useState("");
         const [searchOpen, setSearchOpen] = useState(false);
         const [activeCategories, setActiveCategories] = useState(() => CATEGORIES.map(c => c.id));
         const [filtersOpen, setFiltersOpen] = useState(false);
+        const [noteInput, setNoteInput] = useState("");
         const [toasts, setToasts] = useState([]);
         const searchInputRef = useRef(null);
         const todayKey = toKey(new Date());
+        const weather = useWeather();
 
         const pushToast = useCallback((message, tone) => {
           const id = uid();
@@ -977,30 +1691,8 @@
           });
         }, [events, activeCategories, search]);
 
-        const eventsByDay = useMemo(() => {
-          const map = {};
-          visibleEvents.forEach(ev => {
-            const start = fromKey(ev.date);
-            const end = fromKey(eventEndKey(ev));
-            let cursor = new Date(start);
-            let guard = 0;
-            while (cursor <= end && guard < 60) {
-              const key = toKey(cursor);
-              if (!map[key]) map[key] = [];
-              map[key].push(ev);
-              cursor = addDays(cursor, 1);
-              guard++;
-            }
-          });
-          Object.keys(map).forEach(key => {
-            map[key].sort((a, b) => {
-              if (a.allDay && !b.allDay) return -1;
-              if (!a.allDay && b.allDay) return 1;
-              return timeToMinutes(a.startTime) - timeToMinutes(b.startTime);
-            });
-          });
-          return map;
-        }, [visibleEvents]);
+        const eventsByDay = useMemo(() => buildEventsByDayMap(visibleEvents), [visibleEvents]);
+        const eventsByDayAll = useMemo(() => buildEventsByDayMap(events), [events]);
 
         const categoryCounts = useMemo(() => {
           const counts = {};
@@ -1008,6 +1700,33 @@
           events.forEach(ev => { counts[ev.category] = (counts[ev.category] || 0) + 1; });
           return counts;
         }, [events]);
+
+        const todaysEventsAll = eventsByDayAll[todayKey] || [];
+        const focusWindow = useMemo(() => findFocusWindow(todaysEventsAll), [todaysEventsAll]);
+        const insightText = useMemo(() => computeInsight(todaysEventsAll, goals, tasks), [todaysEventsAll, goals, tasks]);
+        const homeUpcoming = useMemo(() => computeUpcoming(events, 5), [events]);
+        const workUpcoming = useMemo(() => computeUpcoming(events.filter(e => e.category === "work"), 8), [events]);
+        const weekStats = useMemo(() => {
+          const start = startOfWeek(new Date());
+          const end = addDays(start, 6);
+          const counts = {};
+          let total = 0;
+          events.forEach(ev => {
+            const d = fromKey(ev.date);
+            if (d >= start && d <= end) {
+              total++;
+              const key = toKey(d);
+              counts[key] = (counts[key] || 0) + 1;
+            }
+          });
+          let busiestKey = null, busiestCount = 0;
+          Object.keys(counts).forEach(k => { if (counts[k] > busiestCount) { busiestCount = counts[k]; busiestKey = k; } });
+          return {
+            eventCount: total,
+            busiestLabel: busiestKey ? WEEKDAY_SHORT[fromKey(busiestKey).getDay()] : "—",
+            openTasks: tasks.filter(t => !t.done).length
+          };
+        }, [events, tasks]);
 
         function navigate(step) {
           setDirection(step);
@@ -1084,8 +1803,11 @@
         }
         function resetDemo() {
           setEvents(buildSeedEvents());
+          setGoals(buildSeedGoals());
+          setTasks(buildSeedTasks());
+          setNotes(buildSeedNotes());
           setRemindedIds([]);
-          pushToast("Demo calendar reset");
+          pushToast("Demo data reset");
         }
         function exportAll() {
           if (!events.length) { pushToast("No events to export"); return; }
@@ -1094,8 +1816,48 @@
         }
         function handlePickDate(key) {
           selectDay(key);
+          setTab("calendar");
           setFiltersOpen(false);
         }
+        function openSearchFromAnywhere() {
+          setTab("calendar");
+          setView("agenda");
+          setSearchOpen(true);
+        }
+
+        function toggleTask(id) { setTasks(list => list.map(t => t.id === id ? { ...t, done: !t.done } : t)); }
+        function addTask(title) { setTasks(list => [...list, { id: uid(), title, done: false, createdAt: Date.now() }]); }
+
+        function openNewGoal() { setGoalModal({ id: null, title: "", target: "", category: "work", progress: 0 }); }
+        function openEditGoal(g) { setGoalModal({ ...g }); }
+        function closeGoalModal() { setGoalModal(null); }
+        function saveGoal(draft) {
+          if (!draft.title.trim()) return;
+          const clean = { ...draft, title: draft.title.trim() };
+          if (draft.id) {
+            setGoals(list => list.map(g => g.id === draft.id ? clean : g));
+            pushToast("Goal updated");
+          } else {
+            setGoals(list => [...list, { ...clean, id: uid(), createdAt: Date.now() }]);
+            pushToast("Goal added");
+          }
+          setGoalModal(null);
+        }
+        function requestDeleteGoal(id) { setConfirmDeleteGoalId(id); }
+        function confirmDeleteGoal() {
+          setGoals(list => list.filter(g => g.id !== confirmDeleteGoalId));
+          setConfirmDeleteGoalId(null);
+          setGoalModal(null);
+          pushToast("Goal deleted");
+        }
+
+        function submitNote(e) {
+          e.preventDefault();
+          if (!noteInput.trim()) return;
+          setNotes(list => [{ id: uid(), text: noteInput.trim(), createdAt: Date.now() }, ...list]);
+          setNoteInput("");
+        }
+        function deleteNote(id) { setNotes(list => list.filter(n => n.id !== id)); }
 
         useEffect(() => {
           function check() {
@@ -1129,8 +1891,11 @@
               if (e.key === "Escape") e.target.blur();
               return;
             }
-            if (modal || confirmDeleteId || filtersOpen) {
-              if (e.key === "Escape") { setModal(null); setConfirmDeleteId(null); setFiltersOpen(false); }
+            if (modal || goalModal || confirmDeleteId || confirmDeleteGoalId || filtersOpen || breathingOpen) {
+              if (e.key === "Escape") {
+                setModal(null); setGoalModal(null); setConfirmDeleteId(null);
+                setConfirmDeleteGoalId(null); setFiltersOpen(false); setBreathingOpen(false);
+              }
               return;
             }
             if (e.key === "Escape" && searchOpen) { setSearchOpen(false); setSearch(""); return; }
@@ -1138,7 +1903,7 @@
             else if (e.key === "n" || e.key === "N") openCreate(selectedDayKey);
             else if (e.key === "ArrowLeft") navigate(-1);
             else if (e.key === "ArrowRight") navigate(1);
-            else if (e.key === "/") { e.preventDefault(); setSearchOpen(true); }
+            else if (e.key === "/") { e.preventDefault(); openSearchFromAnywhere(); }
             else if (e.key === "1") setView("month");
             else if (e.key === "2") setView("week");
             else if (e.key === "3") setView("day");
@@ -1146,7 +1911,7 @@
           }
           document.addEventListener("keydown", onKeyDown);
           return () => document.removeEventListener("keydown", onKeyDown);
-        }, [modal, confirmDeleteId, filtersOpen, searchOpen, anchor, view, selectedDayKey]);
+        }, [modal, goalModal, confirmDeleteId, confirmDeleteGoalId, filtersOpen, breathingOpen, searchOpen, anchor, view, selectedDayKey]);
 
         function periodLabel() {
           if (view === "month") return formatMonthYear(anchor);
@@ -1160,6 +1925,8 @@
           return "Agenda";
         }
 
+        const fabBottomOffset = "calc(64px + 0.75rem + env(safe-area-inset-bottom))";
+
         return (
           <div className="phone-stage">
             <div className="phone-body">
@@ -1168,39 +1935,62 @@
               <div className="phone-screen cal-scroll">
                 <div className="sticky top-0 z-30 shrink-0 bg-white/95 backdrop-blur-xl" style={{ paddingTop: "env(safe-area-inset-top)" }}>
                   <Header
+                    tab={tab}
                     periodLabel={periodLabel()} onPrev={() => navigate(-1)} onNext={() => navigate(1)} onToday={goToday}
                     onOpenFilters={() => setFiltersOpen(true)}
                     searchOpen={searchOpen} setSearchOpen={setSearchOpen}
                     search={search} setSearch={setSearch} searchInputRef={searchInputRef}
+                    onSearchIconClick={openSearchFromAnywhere}
                   />
-                  <ViewTabs view={view} setView={setView} />
+                  {tab === "calendar" && !searchOpen && <ViewTabs view={view} setView={setView} />}
                 </div>
 
-                <main className="flex-1 px-4 pb-24 pt-3">
+                <main className="flex-1 px-4 pb-28 pt-3">
                   <AnimatePresence mode="wait">
-                    <motion.div key={view} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: .16 }}>
-                      {view === "month" && (
-                        <MonthView
-                          anchor={anchor} direction={direction} eventsByDay={eventsByDay} todayKey={todayKey}
-                          selectedKey={selectedDayKey} onSelectDay={selectDay}
-                          onEventClick={openEdit} onAddForDay={(key) => openCreate(key)}
+                    <motion.div key={tab + (tab === "calendar" ? view : "")} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: .16 }}>
+                      {tab === "home" && (
+                        <HomeScreen
+                          todayEvents={todaysEventsAll} insight={insightText} focusWindow={focusWindow} weather={weather}
+                          goals={goals} tasks={tasks} onToggleTask={toggleTask} onAddTask={addTask}
+                          upcoming={homeUpcoming} onEventClick={openEdit} onOpenBreathing={() => setBreathingOpen(true)}
+                          onOpenGoal={openEditGoal} onGoTab={setTab}
                         />
                       )}
-                      {view === "week" && (
-                        <TimeGridView days={getWeekDays(anchor)} eventsByDay={eventsByDay} todayKey={todayKey} onSlotClick={(key, time) => openCreate(key, time)} onEventClick={openEdit} direction={direction} viewKey={"week-" + toKey(anchor)} />
+                      {tab === "calendar" && (
+                        <>
+                          {view === "month" && (
+                            <MonthView anchor={anchor} direction={direction} eventsByDay={eventsByDay} todayKey={todayKey} selectedKey={selectedDayKey} onSelectDay={selectDay} onEventClick={openEdit} onAddForDay={(key) => openCreate(key)} />
+                          )}
+                          {view === "week" && (
+                            <TimeGridView days={getWeekDays(anchor)} eventsByDay={eventsByDay} todayKey={todayKey} onSlotClick={(key, time) => openCreate(key, time)} onEventClick={openEdit} direction={direction} viewKey={"week-" + toKey(anchor)} />
+                          )}
+                          {view === "day" && (
+                            <TimeGridView days={[anchor]} eventsByDay={eventsByDay} todayKey={todayKey} onSlotClick={(key, time) => openCreate(key, time)} onEventClick={openEdit} direction={direction} viewKey={"day-" + toKey(anchor)} />
+                          )}
+                          {view === "agenda" && (
+                            <AgendaView events={visibleEvents} todayKey={todayKey} onEventClick={openEdit} />
+                          )}
+                        </>
                       )}
-                      {view === "day" && (
-                        <TimeGridView days={[anchor]} eventsByDay={eventsByDay} todayKey={todayKey} onSlotClick={(key, time) => openCreate(key, time)} onEventClick={openEdit} direction={direction} viewKey={"day-" + toKey(anchor)} />
+                      {tab === "insights" && (
+                        <InsightsScreen insight={insightText} focusWindow={focusWindow} weekStats={weekStats} events={events} goals={goals} onEventClick={openEdit} />
                       )}
-                      {view === "agenda" && (
-                        <AgendaView events={visibleEvents} todayKey={todayKey} onEventClick={openEdit} />
+                      {tab === "goals" && (
+                        <GoalsScreen goals={goals} onOpenGoal={openEditGoal} onNewGoal={openNewGoal} />
+                      )}
+                      {tab === "business" && (
+                        <BusinessScreen workEvents={workUpcoming} notes={notes} noteInput={noteInput} setNoteInput={setNoteInput} onAddNote={submitNote} onDeleteNote={deleteNote} onEventClick={openEdit} />
                       )}
                     </motion.div>
                   </AnimatePresence>
                 </main>
               </div>
 
-              <FAB onClick={() => openCreate(selectedDayKey)} />
+              <BottomTabBar tab={tab} setTab={setTab} />
+
+              {(tab === "home" || tab === "calendar") && <FAB onClick={() => openCreate(selectedDayKey)} bottomOffset={fabBottomOffset} />}
+              {tab === "goals" && <FAB onClick={openNewGoal} bottomOffset={fabBottomOffset} />}
+
               <div className="phone-home-indicator"></div>
 
               <FiltersSheet
@@ -1211,6 +2001,10 @@
                 activeCategories={activeCategories} onToggleCategory={toggleCategory} categoryCounts={categoryCounts}
                 onExport={exportAll} onReset={resetDemo}
               />
+
+              <AnimatePresence>
+                {breathingOpen && <BreathingModal onClose={() => setBreathingOpen(false)} />}
+              </AnimatePresence>
 
               <AnimatePresence>
                 {modal && (
@@ -1225,7 +2019,23 @@
               </AnimatePresence>
 
               <AnimatePresence>
+                {goalModal && (
+                  <GoalModal
+                    draft={goalModal}
+                    onChange={setGoalModal}
+                    onClose={closeGoalModal}
+                    onSave={saveGoal}
+                    onDelete={requestDeleteGoal}
+                  />
+                )}
+              </AnimatePresence>
+
+              <AnimatePresence>
                 {confirmDeleteId && <ConfirmDialog onCancel={() => setConfirmDeleteId(null)} onConfirm={confirmDelete} />}
+              </AnimatePresence>
+
+              <AnimatePresence>
+                {confirmDeleteGoalId && <ConfirmDialog onCancel={() => setConfirmDeleteGoalId(null)} onConfirm={confirmDeleteGoal} />}
               </AnimatePresence>
 
               <ToastStack toasts={toasts} />
