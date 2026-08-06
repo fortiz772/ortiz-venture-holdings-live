@@ -50,7 +50,9 @@
     .compare-row + .compare-row{border-top:1px solid rgba(14,116,94,.12)}
     .compare-cell{padding:18px 20px;font-size:14.5px}
     .compare-cell.old{background:rgba(0,0,0,.02);color:var(--muted)}
+    .compare-cell.old:before{content:"✕ ";color:#b3564a;font-weight:800}
     .compare-cell.new{background:rgba(14,143,107,.06);color:var(--ink);font-weight:600}
+    .compare-cell.new:before{content:"✓ ";color:var(--brand)}
     .compare-head{display:grid;grid-template-columns:1fr 1fr;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:.06em}
     .compare-head div{padding:14px 20px}
     .compare-head .old{background:rgba(0,0,0,.04);color:var(--muted)}
@@ -96,12 +98,12 @@
       <p class="eyebrow">Core Features</p>
       <h2>Everything a small portfolio needs, nothing it doesn't.</h2>
       <div class="grid-features">
-        <div class="feature"><h3>💳 Online Rent Collection</h3><p>Tenants pay by ACH or card. Funds post automatically and every payment is logged for owners in real time.</p></div>
-        <div class="feature"><h3>📋 Offline-First Inspections</h3><p>Walkthrough photos and notes save to the device instantly and sync once you're back online — no freezing, no redone walkthroughs.</p></div>
-        <div class="feature"><h3>🔧 Maintenance Tracking</h3><p>Tenants submit requests with photos and video, vendors get routed automatically, and updates go out without a chased email thread.</p></div>
-        <div class="feature"><h3>🏠 Tenant &amp; Owner Portals</h3><p>Separate dashboards: tenants see balances and requests, owners see statements and performance — nobody wades through the other person's screen.</p></div>
-        <div class="feature"><h3>✍️ E-Sign Leases</h3><p>Send, sign, and store leases and renewals without printing, scanning, or a separate e-signature subscription.</p></div>
-        <div class="feature"><h3>📊 Real Accounting Sync</h3><p>A genuine two-way sync with QuickBooks Online and Xero, with a plain-language page showing exactly what syncs and what doesn't.</p></div>
+        <div class="feature"><h3><span aria-hidden="true">💳</span> Online Rent Collection</h3><p>Tenants pay by ACH or card. Funds post automatically and every payment is logged for owners in real time.</p></div>
+        <div class="feature"><h3><span aria-hidden="true">📋</span> Offline-First Inspections</h3><p>Walkthrough photos and notes save to the device instantly and sync once you're back online — no freezing, no redone walkthroughs.</p></div>
+        <div class="feature"><h3><span aria-hidden="true">🔧</span> Maintenance Tracking</h3><p>Tenants submit requests with photos and video, vendors get routed automatically, and updates go out without a chased email thread.</p></div>
+        <div class="feature"><h3><span aria-hidden="true">🏠</span> Tenant &amp; Owner Portals</h3><p>Separate dashboards: tenants see balances and requests, owners see statements and performance — nobody wades through the other person's screen.</p></div>
+        <div class="feature"><h3><span aria-hidden="true">✍️</span> E-Sign Leases</h3><p>Send, sign, and store leases and renewals without printing, scanning, or a separate e-signature subscription.</p></div>
+        <div class="feature"><h3><span aria-hidden="true">📊</span> Real Accounting Sync</h3><p>A genuine two-way sync with QuickBooks Online and Xero, with a plain-language page showing exactly what syncs and what doesn't.</p></div>
       </div>
     </section>
 
@@ -109,17 +111,17 @@
       <p class="eyebrow">Why It's Different</p>
       <h2>Built from what reviewers say legacy property software gets wrong.</h2>
       <p class="lede">Every row below responds to a specific, commonly-reported complaint about traditional property management apps.</p>
-      <div class="compare card" style="padding:0">
-        <div class="compare-head">
-          <div class="old">Legacy property software</div>
-          <div class="new">PropertyPilot AI</div>
+      <div class="compare card" style="padding:0" role="table" aria-label="Legacy property software compared to PropertyPilot AI">
+        <div class="compare-head" role="row">
+          <div class="old" role="columnheader">Legacy property software</div>
+          <div class="new" role="columnheader">PropertyPilot AI</div>
         </div>
-        <div class="compare-row"><div class="compare-cell old">Apps that freeze or crash mid-inspection, forcing a restart and redone photos.</div><div class="compare-cell new">Offline-first inspections that save every photo locally and sync automatically.</div></div>
-        <div class="compare-row"><div class="compare-cell old">Live chat gets removed; support replies take days.</div><div class="compare-cell new">Live chat with a 2-hour human response guarantee, 7 days a week.</div></div>
-        <div class="compare-row"><div class="compare-cell old">Surprise charges and slow, hard-to-get refunds.</div><div class="compare-cell new">Itemized billing and self-service refund requests, resolved within 24 hours.</div></div>
-        <div class="compare-row"><div class="compare-cell old">Marketed as having QuickBooks-like accounting that doesn't actually match QuickBooks.</div><div class="compare-cell new">A real two-way QuickBooks Online &amp; Xero sync, documented in plain language.</div></div>
-        <div class="compare-row"><div class="compare-cell old">Feature requests need 200+ community upvotes before anyone responds.</div><div class="compare-cell new">Every request gets a real reply from our product team within 5 business days.</div></div>
-        <div class="compare-row"><div class="compare-cell old">Pricing hidden behind a "talk to sales" call.</div><div class="compare-cell new">Pricing published below. No sales call required.</div></div>
+        <div class="compare-row" role="row"><div class="compare-cell old" role="cell">Apps that freeze or crash mid-inspection, forcing a restart and redone photos.</div><div class="compare-cell new" role="cell">Offline-first inspections that save every photo locally and sync automatically.</div></div>
+        <div class="compare-row" role="row"><div class="compare-cell old" role="cell">Live chat gets removed; support replies take days.</div><div class="compare-cell new" role="cell">Live chat with a 2-hour human response guarantee, 7 days a week.</div></div>
+        <div class="compare-row" role="row"><div class="compare-cell old" role="cell">Surprise charges and slow, hard-to-get refunds.</div><div class="compare-cell new" role="cell">Itemized billing and self-service refund requests, resolved within 24 hours.</div></div>
+        <div class="compare-row" role="row"><div class="compare-cell old" role="cell">Marketed as having QuickBooks-like accounting that doesn't actually match QuickBooks.</div><div class="compare-cell new" role="cell">A real two-way QuickBooks Online &amp; Xero sync, documented in plain language.</div></div>
+        <div class="compare-row" role="row"><div class="compare-cell old" role="cell">Feature requests need 200+ community upvotes before anyone responds.</div><div class="compare-cell new" role="cell">Every request gets a real reply from our product team within 5 business days.</div></div>
+        <div class="compare-row" role="row"><div class="compare-cell old" role="cell">Pricing hidden behind a "talk to sales" call.</div><div class="compare-cell new" role="cell">Pricing published below. No sales call required.</div></div>
       </div>
     </section>
 
