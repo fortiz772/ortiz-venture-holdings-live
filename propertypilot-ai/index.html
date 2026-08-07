@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PropertyPilot AI | Ortiz Venture Holdings LLC</title>
+  <meta name="description" content="PropertyPilot AI is a property management app for independent landlords and small portfolios, built to fix what reviewers say legacy platforms get wrong.">
+  <meta name="theme-color" content="#faf8f3">
+  <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMwRThGNkIiLz48dGV4dCB4PSIzMiIgeT0iNDUiIGZvbnQtZmFtaWx5PSJBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjM2IiBmb250LXdlaWdodD0iODAwIiBmaWxsPSIjZmZmZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5QPC90ZXh0Pjwvc3ZnPg==">
+  <meta property="og:title" content="PropertyPilot AI">
+  <meta property="og:description" content="Property management software for independent landlords — offline-first inspections, real support, transparent billing.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.ortizventureholdings.com/propertypilot-ai/">
+  <style>
+    :root{
+      --brand:#0E8F6B; --brand-dark:#0B6E52; --accent:#D9A441;
+      --bg:#faf8f3; --ink:#10201a; --muted:#55645c;
+      --card:rgba(255,255,255,.78); --card-b:rgba(255,255,255,.9);
+      --shadow:0 24px 70px rgba(14,116,94,.15);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+    .wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+    a{color:var(--brand-dark)}
+    nav{position:sticky;top:0;background:rgba(250,248,243,.9);backdrop-filter:blur(8px);border-bottom:1px solid rgba(14,116,94,.1);z-index:10}
+    nav .wrap{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;gap:16px;flex-wrap:wrap}
+    .brand-mark{font-weight:800;font-size:18px;color:var(--ink);text-decoration:none}
+    .brand-mark span{color:var(--brand)}
+    .navlinks{display:flex;gap:22px;flex-wrap:wrap;font-weight:600;font-size:14px}
+    .navlinks a{text-decoration:none;color:var(--ink)}
+    .navlinks a:hover{color:var(--brand)}
+    header.hero{padding:64px 0 40px}
+    .pill{display:inline-block;margin:0 8px 8px 0;padding:8px 13px;border-radius:999px;background:#e9f5ef;color:#0b6e46;font-weight:700;font-size:13px}
+    h1{font-size:clamp(38px,7vw,64px);line-height:1.02;margin:14px 0 12px}
+    h1 span{color:var(--brand)}
+    .lede{font-size:19px;color:var(--muted);max-width:640px}
+    .cta-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+    .btn{display:inline-flex;align-items:center;padding:13px 22px;border-radius:14px;font-weight:700;text-decoration:none;font-size:15px}
+    .btn-primary{background:var(--brand-dark);color:#fff}
+    .btn-secondary{background:#fff;color:var(--ink);border:1px solid rgba(14,116,94,.25)}
+    .card{background:var(--card);border:1px solid var(--card-b);border-radius:28px;padding:28px;box-shadow:var(--shadow)}
+    section{padding:48px 0;scroll-margin-top:130px}
+    .eyebrow{text-transform:uppercase;letter-spacing:.14em;font-size:12px;font-weight:800;color:var(--brand-dark)}
+    h2{font-size:clamp(28px,4vw,40px);margin:8px 0 16px}
+    .grid-features{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin-top:24px}
+    .feature{padding:22px;border-radius:20px;background:var(--card);border:1px solid var(--card-b)}
+    .feature h3{margin:0 0 8px;font-size:17px}
+    .feature p{margin:0;color:var(--muted);font-size:14.5px}
+    .phone-row{display:flex;gap:24px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+    .phone{width:230px;background:#0d1f18;border-radius:34px;padding:8px;box-shadow:0 20px 45px rgba(14,32,26,.28);position:relative}
+    .phone-notch{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:70px;height:16px;background:#0d1f18;border-radius:0 0 10px 10px;z-index:2}
+    .phone-screen{background:#fdfdfb;border-radius:26px;overflow:hidden;min-height:420px;display:flex;flex-direction:column}
+    .phone-status{display:flex;justify-content:space-between;padding:10px 16px 2px;font-size:11px;font-weight:700;color:var(--ink)}
+    .phone-header{padding:10px 14px 12px;font-weight:800;font-size:13px;border-bottom:1px solid rgba(0,0,0,.06)}
+    .phone-body{padding:12px 14px;flex:1;display:flex;flex-direction:column;gap:10px}
+    .phone-caption{text-align:center;font-size:12.5px;color:var(--muted);margin-top:14px;font-weight:600}
+    .compare{margin-top:24px;border-radius:24px;overflow:hidden;border:1px solid var(--card-b)}
+    .compare-row{display:grid;grid-template-columns:1fr 1fr}
+    .compare-row + .compare-row{border-top:1px solid rgba(14,116,94,.12)}
+    .compare-cell{padding:18px 20px;font-size:14.5px}
+    .compare-cell.old{background:rgba(0,0,0,.02);color:var(--muted)}
+    .compare-cell.old:before{content:"✕ ";color:#b3564a;font-weight:800}
+    .compare-cell.new{background:rgba(14,143,107,.06);color:var(--ink);font-weight:600}
+    .compare-cell.new:before{content:"✓ ";color:var(--brand)}
+    .compare-head{display:grid;grid-template-columns:1fr 1fr;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:.06em}
+    .compare-head div{padding:14px 20px}
+    .compare-head .old{background:rgba(0,0,0,.04);color:var(--muted)}
+    .compare-head .new{background:var(--brand-dark);color:#fff}
+    .pricing-card{max-width:420px;margin-top:24px}
+    .price{font-size:44px;font-weight:800;margin:6px 0}
+    .price span{display:block;font-size:16px;font-weight:600;color:var(--muted);margin-top:4px}
+    ul.checklist{list-style:none;padding:0;margin:18px 0}
+    ul.checklist li{padding:6px 0 6px 26px;position:relative;font-size:14.5px}
+    ul.checklist li:before{content:"✓";position:absolute;left:0;color:var(--brand);font-weight:800}
+    .disclaimer{font-size:13.5px;color:var(--muted);background:rgba(217,164,65,.12);border:1px solid rgba(217,164,65,.3);border-radius:16px;padding:16px 18px;margin-top:20px}
+    .legal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:22px}
+    .tile{padding:18px;border-radius:20px;background:var(--card);border:1px solid var(--card-b);text-decoration:none;color:var(--ink);font-weight:700;display:block}
+    footer{padding:32px 0 56px;color:var(--muted);font-size:14px}
+    @media (max-width:640px){.compare-row,.compare-head{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="wrap">
+      <a class="brand-mark" href="#top">Property<span>Pilot</span> AI</a>
+      <div class="navlinks">
+        <a href="#features">Features</a>
+        <a href="#preview">Preview</a>
+        <a href="#why">Why It's Different</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#legal">Support &amp; Legal</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="wrap" id="top">
+    <header class="hero">
+      <p class="pill">Property Management</p><p class="pill">Built for Independent Landlords</p><p class="pill">Apple In-App Purchase</p>
+      <h1>Property<span>Pilot</span> AI</h1>
+      <p class="lede">A property management app for independent landlords and small portfolios from Ortiz Venture Holdings LLC — rent collection, maintenance tracking, tenant &amp; owner portals, and inspections that don't freeze halfway through a walkthrough.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="#pricing">See pricing</a>
+        <a class="btn btn-secondary" href="mailto:cisco@ortizventureholdings.com">Request early access</a>
+      </div>
+    </header>
+
+    <section id="features">
+      <p class="eyebrow">Core Features</p>
+      <h2>Everything a small portfolio needs, nothing it doesn't.</h2>
+      <div class="grid-features">
+        <div class="feature"><h3><span aria-hidden="true">💳</span> Online Rent Collection</h3><p>Tenants pay by ACH or card. Funds post automatically and every payment is logged for owners in real time.</p></div>
+        <div class="feature"><h3><span aria-hidden="true">📋</span> Offline-First Inspections</h3><p>Walkthrough photos and notes save to the device instantly and sync once you're back online — no freezing, no redone walkthroughs.</p></div>
+        <div class="feature"><h3><span aria-hidden="true">🔧</span> Maintenance Tracking</h3><p>Tenants submit requests with photos and video, vendors get routed automatically, and updates go out without a chased email thread.</p></div>
+        <div class="feature"><h3><span aria-hidden="true">🏠</span> Tenant &amp; Owner Portals</h3><p>Separate dashboards: tenants see balances and requests, owners see statements and performance — nobody wades through the other person's screen.</p></div>
+        <div class="feature"><h3><span aria-hidden="true">✍️</span> E-Sign Leases</h3><p>Send, sign, and store leases and renewals without printing, scanning, or a separate e-signature subscription.</p></div>
+        <div class="feature"><h3><span aria-hidden="true">📊</span> Real Accounting Sync</h3><p>A genuine two-way sync with QuickBooks Online and Xero, with a plain-language page showing exactly what syncs and what doesn't.</p></div>
+      </div>
+    </section>
+
+    <section id="preview">
+      <p class="eyebrow">Concept Preview</p>
+      <h2>A closer look at how it works.</h2>
+      <p class="lede">PropertyPilot AI is in development — these are interface concepts, not screenshots of a shipped app.</p>
+      <div class="phone-row">
+        <div class="phone" role="img" aria-label="Concept screen: inspection mode with photos saved locally and a badge showing they will sync automatically once back online">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="phone-status"><span>9:41</span><span>🔋</span></div>
+            <div class="phone-header">Inspection · Unit 4B</div>
+            <div class="phone-body">
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
+                <div style="aspect-ratio:1;background:#dff2ea;border-radius:8px"></div>
+                <div style="aspect-ratio:1;background:#cdeadd;border-radius:8px"></div>
+                <div style="aspect-ratio:1;background:#dff2ea;border-radius:8px"></div>
+                <div style="aspect-ratio:1;background:#cdeadd;border-radius:8px"></div>
+                <div style="aspect-ratio:1;background:#dff2ea;border-radius:8px"></div>
+                <div style="aspect-ratio:1;background:#f3f8ec;border:1.5px dashed #9db8a9;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px">+</div>
+              </div>
+              <div style="background:#fdf3de;border:1px solid #eed9a3;border-radius:10px;padding:8px 10px;font-size:11px;font-weight:700;color:#8a6a12">📶 Offline — 6 photos saved, will sync automatically</div>
+              <div style="margin-top:auto;background:var(--brand-dark);color:#fff;text-align:center;padding:10px;border-radius:12px;font-weight:800;font-size:12.5px">Finish Walkthrough</div>
+            </div>
+          </div>
+        </div>
+        <div class="phone" role="img" aria-label="Concept screen: live chat support conversation with a reply in under five minutes">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="phone-status"><span>9:41</span><span>🔋</span></div>
+            <div class="phone-header">Support Chat</div>
+            <div class="phone-body">
+              <div style="align-self:flex-start;background:#eef1ee;border-radius:12px 12px 12px 3px;padding:8px 11px;font-size:11.5px;max-width:85%">Tenant's sink is leaking — which vendor should I send?</div>
+              <div style="align-self:flex-end;background:var(--brand-dark);color:#fff;border-radius:12px 12px 3px 12px;padding:8px 11px;font-size:11.5px;max-width:85%">On it — routing to your plumber now.</div>
+              <div style="align-self:center;background:#e9f5ef;color:#0b6e46;font-weight:800;font-size:10.5px;padding:5px 10px;border-radius:999px;margin-top:auto">🟢 Replied in 4 minutes</div>
+            </div>
+          </div>
+        </div>
+        <div class="phone" role="img" aria-label="Concept screen: owner dashboard showing rent collected, occupancy rate, and open maintenance requests">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="phone-status"><span>9:41</span><span>🔋</span></div>
+            <div class="phone-header">Portfolio Overview</div>
+            <div class="phone-body">
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700"><span>Rent Collected</span><span>$8,420 / $8,420</span></div>
+                <div style="background:#e7ece8;border-radius:999px;height:8px;margin-top:4px"><div style="background:var(--brand);width:100%;height:100%;border-radius:999px"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700"><span>Occupancy</span><span>100%</span></div>
+                <div style="background:#e7ece8;border-radius:999px;height:8px;margin-top:4px"><div style="background:var(--accent);width:100%;height:100%;border-radius:999px"></div></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;background:#f5f3ec;border-radius:10px;padding:8px 10px;font-size:11px;font-weight:700"><span>Open Maintenance</span><span style="background:var(--brand-dark);color:#fff;border-radius:999px;padding:2px 8px">2</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="phone-caption">Left to right: offline-first inspections, live support chat, owner dashboard.</p>
+    </section>
+
+    <section id="why">
+      <p class="eyebrow">Why It's Different</p>
+      <h2>Built from what reviewers say legacy property software gets wrong.</h2>
+      <p class="lede">Every row below responds to a specific, commonly-reported complaint about traditional property management apps.</p>
+      <div class="compare card" style="padding:0" role="table" aria-label="Legacy property software compared to PropertyPilot AI">
+        <div class="compare-head" role="row">
+          <div class="old" role="columnheader">Legacy property software</div>
+          <div class="new" role="columnheader">PropertyPilot AI</div>
+        </div>
+        <div class="compare-row" role="row"><div class="compare-cell old" role="cell">Apps that freeze or crash mid-inspection, forcing a restart and redone photos.</div><div class="compare-cell new" role="cell">Offline-first inspections that save every photo locally and sync automatically.</div></div>
+        <div class="compare-row" role="row"><div class="compare-cell old" role="cell">Live chat gets removed; support replies take days.</div><div class="compare-cell new" role="cell">Live chat with a 2-hour human response guarantee, 7 days a week.</div></div>
+        <div class="compare-row" role="row"><div class="compare-cell old" role="cell">Surprise charges and slow, hard-to-get refunds.</div><div class="compare-cell new" role="cell">Itemized billing and self-service refund requests, resolved within 24 hours.</div></div>
+        <div class="compare-row" role="row"><div class="compare-cell old" role="cell">Marketed as having QuickBooks-like accounting that doesn't actually match QuickBooks.</div><div class="compare-cell new" role="cell">A real two-way QuickBooks Online &amp; Xero sync, documented in plain language.</div></div>
+        <div class="compare-row" role="row"><div class="compare-cell old" role="cell">Feature requests need 200+ community upvotes before anyone responds.</div><div class="compare-cell new" role="cell">Every request gets a real reply from our product team within 5 business days.</div></div>
+        <div class="compare-row" role="row"><div class="compare-cell old" role="cell">Pricing hidden behind a "talk to sales" call.</div><div class="compare-cell new" role="cell">Pricing published below. No sales call required.</div></div>
+      </div>
+    </section>
+
+    <section id="pricing">
+      <p class="eyebrow">Pricing</p>
+      <h2>Simple, published pricing.</h2>
+      <div class="card pricing-card">
+        <p class="pill">7-day free trial</p>
+        <div class="price">$4.99<span>/month for up to 10 units</span></div>
+        <p style="color:var(--muted);margin:0 0 6px">Then $0.75 per additional unit/month.</p>
+        <ul class="checklist">
+          <li>Online rent collection</li>
+          <li>Offline-first maintenance &amp; inspections</li>
+          <li>Tenant &amp; owner portals</li>
+          <li>Lease e-signing</li>
+          <li>QuickBooks Online &amp; Xero sync</li>
+          <li>Live chat support</li>
+        </ul>
+        <p style="color:var(--muted);font-size:13.5px;margin:0">No setup fee. No annual contract. Cancel anytime from Settings.</p>
+      </div>
+    </section>
+
+    <section id="legal">
+      <p class="eyebrow">Support &amp; Legal</p>
+      <h2>Contact &amp; policies.</h2>
+      <div class="legal-grid">
+        <a class="tile" href="/propertypilot-ai/privacy/">Privacy Policy</a>
+        <a class="tile" href="/propertypilot-ai/subscription-terms/">Subscription Terms</a>
+        <a class="tile" href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/">Apple Standard Terms of Use</a>
+        <a class="tile" href="/propertypilot-ai/support/">Contact Support</a>
+      </div>
+      <div class="disclaimer"><strong>Important:</strong> PropertyPilot AI is independent software created by Ortiz Venture Holdings LLC. It is not affiliated with, endorsed by, or sponsored by any other property management platform. PropertyPilot AI does not provide legal, tax, or accounting advice, and rent payments are processed by Apple and our third-party payment partners, not held by Ortiz Venture Holdings LLC.</div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">Ortiz Venture Holdings LLC · cisco@ortizventureholdings.com</div>
+  </footer>
+</body>
+</html>

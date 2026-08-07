@@ -1,0 +1,91 @@
+datasource db {
+  provider = "sqlite"
+}
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+enum Role {
+  PM
+  TENANT
+}
+
+enum RequestStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+}
+
+enum PaymentStatus {
+  PAID
+  DUE
+}
+
+model User {
+  id                  String                @id @default(cuid())
+  email               String                @unique
+  passwordHash        String
+  name                String
+  role                Role
+  properties          Property[]            @relation("PMProperties")
+  leases              Lease[]               @relation("TenantLeases")
+  maintenanceRequests MaintenanceRequest[]  @relation("TenantRequests")
+  createdAt           DateTime              @default(now())
+}
+
+model Property {
+  id      String @id @default(cuid())
+  name    String
+  address String
+  pm      User   @relation("PMProperties", fields: [pmId], references: [id])
+  pmId    String
+  units   Unit[]
+}
+
+model Unit {
+  id                  String                @id @default(cuid())
+  label               String
+  rentAmount          Int
+  property            Property              @relation(fields: [propertyId], references: [id])
+  propertyId          String
+  lease               Lease?
+  maintenanceRequests MaintenanceRequest[]
+}
+
+model Lease {
+  id         String        @id @default(cuid())
+  unit       Unit          @relation(fields: [unitId], references: [id])
+  unitId     String        @unique
+  tenant     User          @relation("TenantLeases", fields: [tenantId], references: [id])
+  tenantId   String
+  rentAmount Int
+  startDate  DateTime
+  payments   RentPayment[]
+}
+
+model RentPayment {
+  id          String        @id @default(cuid())
+  lease       Lease         @relation(fields: [leaseId], references: [id])
+  leaseId     String
+  periodLabel String
+  amount      Int
+  status      PaymentStatus @default(DUE)
+  simulated   Boolean       @default(true)
+  paidAt      DateTime?
+  createdAt   DateTime      @default(now())
+}
+
+model MaintenanceRequest {
+  id           String        @id @default(cuid())
+  unit         Unit          @relation(fields: [unitId], references: [id])
+  unitId       String
+  tenant       User          @relation("TenantRequests", fields: [tenantId], references: [id])
+  tenantId     String
+  title        String
+  description  String
+  photoDataUrl String?
+  status       RequestStatus @default(OPEN)
+  createdAt    DateTime      @default(now())
+}
